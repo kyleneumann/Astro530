@@ -53,7 +53,10 @@ def Planck(nu=1,T=1000):
     unit = (num[0]/den[0]).unit
     
     for i in range(length):
-        Bv.append((num[i]/den[i]).value)     
+        temp = (num[i]/den[i]).value
+        Bv.append(temp)     
+    Bv = np.array(Bv)    
+    Bv[np.isnan(Bv)] = 0
     
     #den = math.exp(h*c/kB * nu/T)-1
     return (Bv*unit/u.sr).to(u.erg/u.s/u.sr/u.cm**2/u.Hz)
@@ -143,7 +146,25 @@ def funct_BoxInt(xmin, xmax, n = 100, style="mp", function=Planck, **kwargs):
     
     return BoxInt(x_list,y_list,style)
 
+def Planck_Int(Temp):
+    """Planck Integral
+    Given temperature, the function will calculate the analytic solution to the planck function's integral from wavenumber 0 to Infinity
     
-
+    input parameter:
+    
+    Temp (float): Temperature in units of Kelvin
+    """
+    
+    h = const.h
+    kB = const.k_B
+    pi = np.pi
+    c = const.c
+    
+    Temp = Temp*u.K
+    Temp = Temp.value
+    
+    analytic_sol = (2*pi**4/(15*h**3*c**3)*(kB*Temp*u.K)**4/u.sr).to(u.erg/u.s/u.sr/u.cm**2/u.Hz/u.um)
+    
+    return analytic_sol
 
 
