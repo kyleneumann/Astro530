@@ -74,6 +74,13 @@ def BoxInt(x_list,y_list,style = "left"):
     
     area (float): area under the given curve
     """
+    
+    x_unit = (x_list*u.g/u.g).unit
+    x_list = (x_list*u.g/u.g).value
+    
+    y_unit = (y_list*u.g/u.g).unit
+    y_list = (y_list*u.g/u.g).value
+    
     if len(x_list) != len(y_list):
         raise ValueError("x_list and y_list must be the same length.")
     
@@ -86,7 +93,7 @@ def BoxInt(x_list,y_list,style = "left"):
             if dx < 0:
                 raise ValueError("x_list must be in ascending order.")
             dx_list.append(dx)
-            
+           
     if len(x_list) - len(dx_list) != 1:
         raise ValueError("Logic is lost.")
         
@@ -105,10 +112,12 @@ def BoxInt(x_list,y_list,style = "left"):
     else: raise ValueError("The style variable must be either 'left', 'right', or 'mp'.")
     
     area = 0
-    for i in range(len(dx_list)):
-        area += dx_list[i]*h_list[i]
+    
+    area = np.sum(np.array(dx_list)*np.array(h_list))
+#     for i in range(len(dx_list)):
+#         area += dx_list[i]*h_list[i]
         
-    return area
+    return area*x_unit*y_unit
 
 def funct_BoxInt(xmin, xmax, n = 100, style="mp", function=Planck, **kwargs):
     """ Functional Box Integrator
