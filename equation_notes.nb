@@ -1,0 +1,533 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     21211,        523]
+NotebookOptionsPosition[     19620,        486]
+NotebookOutlinePosition[     20030,        502]
+CellTagsIndexPosition[     19987,        499]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{"?", "E_n"}]], "Input",
+ CellChangeTimes->{{3.915048260246498*^9, 3.9150482690391936`*^9}},
+ CellLabel->"In[2]:=",ExpressionUUID->"682605b5-c841-4a6a-9cb7-5a5ad9ea8501"],
+
+Cell[BoxData[
+ RowBox[{"Missing", "[", 
+  RowBox[{"\<\"UnknownSymbol\"\>", ",", "\<\"E_n\"\>"}], "]"}]], "Output",
+ CellChangeTimes->{{3.9150482660171847`*^9, 3.9150482692919755`*^9}},
+ CellLabel->"Out[2]=",ExpressionUUID->"6eef2607-5a7b-430d-a5e5-705b92bb4b65"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"En", "[", 
+   RowBox[{"n_", ",", "x_"}], "]"}], " ", "=", 
+  RowBox[{
+   RowBox[{"x", "^", 
+    RowBox[{"(", 
+     RowBox[{"n", "-", "1"}], ")"}]}], "*", 
+   RowBox[{"Integrate", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Exp", "[", 
+       RowBox[{"-", "t"}], "]"}], "/", 
+      RowBox[{"t", "^", "n"}]}], ",", 
+     RowBox[{"{", 
+      RowBox[{"t", ",", "x", ",", "Infinity"}], "}"}]}], "]"}]}]}]], "Input",
+ CellChangeTimes->{{3.915048302186784*^9, 3.9150483376794024`*^9}, {
+  3.9150484336958013`*^9, 3.9150484391195583`*^9}},
+ CellLabel->"In[7]:=",ExpressionUUID->"268e7d4b-855d-4612-84d7-98078172594e"],
+
+Cell[BoxData[
+ TemplateBox[{
+   RowBox[{
+     SuperscriptBox["x", 
+      RowBox[{
+        RowBox[{"-", "1"}], "+", "n"}]], " ", 
+     RowBox[{"Gamma", "[", 
+       RowBox[{
+         RowBox[{"1", "-", "n"}], ",", "x"}], "]"}]}], 
+   RowBox[{
+     RowBox[{
+       RowBox[{"Im", "[", "x", "]"}], "\[NotEqual]", "0"}], "||", 
+     RowBox[{
+       RowBox[{"Re", "[", "x", "]"}], ">", "0"}]}]},
+  "ConditionalExpression"]], "Output",
+ CellChangeTimes->{3.9150483446676903`*^9, 3.9150484443750496`*^9},
+ CellLabel->"Out[7]=",ExpressionUUID->"9b5a8636-eedf-4a7c-8d7f-0ca6e80ed289"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Integrate", "[", 
+  RowBox[{
+   RowBox[{"En", "[", 
+    RowBox[{"100", ",", "x"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"x", ",", "0", ",", "Infinity"}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.9150483556574683`*^9, 3.91504838636267*^9}, {
+  3.9150484193978233`*^9, 3.9150484648656454`*^9}},
+ CellLabel->"In[12]:=",ExpressionUUID->"1f8318dd-37e9-4be0-aeb6-5eea5f11a932"],
+
+Cell[BoxData[
+ FractionBox["1", "100"]], "Output",
+ CellChangeTimes->{{3.915048375336423*^9, 3.9150483875638485`*^9}, {
+  3.9150484209812202`*^9, 3.9150484867154493`*^9}},
+ CellLabel->"Out[12]=",ExpressionUUID->"6335334e-4efe-4e43-a1ec-07480933e34d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"En", "[", 
+  RowBox[{
+   RowBox[{"-", "1"}], ",", "x"}], "]"}]], "Input",
+ CellChangeTimes->{{3.915049302658292*^9, 3.915049308846139*^9}, 
+   3.9150495138984923`*^9},
+ CellLabel->"In[17]:=",ExpressionUUID->"99769c47-0b2b-4573-b5b2-10fb3829de7f"],
+
+Cell[BoxData[
+ TemplateBox[{
+   FractionBox[
+    RowBox[{"Gamma", "[", 
+      RowBox[{"2", ",", "x"}], "]"}], 
+    SuperscriptBox["x", "2"]], 
+   RowBox[{
+     RowBox[{
+       RowBox[{"Im", "[", "x", "]"}], "\[NotEqual]", "0"}], "||", 
+     RowBox[{
+       RowBox[{"Re", "[", "x", "]"}], ">", "0"}]}]},
+  "ConditionalExpression"]], "Output",
+ CellChangeTimes->{3.915049309929859*^9, 3.915049516385361*^9},
+ CellLabel->"Out[17]=",ExpressionUUID->"4ead4bda-5618-4db4-a651-55602af683cf"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"?", "Gamma"}]], "Input",
+ CellChangeTimes->{{3.9150493135970197`*^9, 3.91504931743688*^9}},
+ CellLabel->"In[15]:=",ExpressionUUID->"3d4c8a0a-fe32-4aec-8dc5-b2dd514e4f26"],
+
+Cell[BoxData[
+ InterpretationBox[
+  StyleBox[
+   FrameBox[
+    DynamicModuleBox[{System`InformationDump`open$$ = False, 
+     System`InformationDump`mouseOver$$ = False}, 
+     PaneSelectorBox[{True->
+      TagBox[GridBox[{
+         {
+          ItemBox[
+           PaneBox[
+            StyleBox["\<\" Symbol\"\>", "InformationTitleText",
+             StripOnInput->False,
+             BaseStyle -> None],
+            FrameMargins->{{4, 0}, {-1, 1}}],
+           BaseStyle->"InformationTitleBackground",
+           StripOnInput->False], 
+          ItemBox[
+           PaneBox[
+            TooltipBox[
+             ButtonBox[
+              PaneSelectorBox[{False->
+               
+               DynamicBox[FEPrivate`FrontEndResource[
+                "FEBitmaps", "InformationHelpIcon"]], True->
+               
+               DynamicBox[FEPrivate`FrontEndResource[
+                "FEBitmaps", "InformationHelpIconHot"]]}, Dynamic[
+                CurrentValue["MouseOver"]]],
+              Appearance->None,
+              BaseStyle->"Link",
+              ButtonData->"paclet:ref/Gamma",
+              ButtonNote->"paclet:ref/Gamma"],
+             "\"paclet:ref/Gamma\""],
+            FrameMargins->{{0, 4}, {0, 2}}],
+           BaseStyle->"InformationTitleBackground",
+           StripOnInput->False]},
+         {
+          ItemBox[
+           PaneBox[
+            
+            StyleBox["\<\"\\!\\(\\*RowBox[{\\\"Gamma\\\", \\\"[\\\", \
+StyleBox[\\\"z\\\", \\\"TI\\\"], \\\"]\\\"}]\\) is the Euler gamma function \
+\\!\\(\\*RowBox[{\\\"\[CapitalGamma]\\\", \\\"(\\\", \\\"z\\\", \
+\\\")\\\"}]\\). \\n\\!\\(\\*RowBox[{\\\"Gamma\\\", \\\"[\\\", \
+RowBox[{StyleBox[\\\"a\\\", \\\"TI\\\"], \\\",\\\", StyleBox[\\\"z\\\", \
+\\\"TI\\\"]}], \\\"]\\\"}]\\) is the incomplete gamma function \
+\\!\\(\\*RowBox[{\\\"\[CapitalGamma]\\\", \\\"(\\\", RowBox[{\\\"a\\\", \\\",\
+\\\", \\\"z\\\"}], \\\")\\\"}]\\). \\n\\!\\(\\*RowBox[{\\\"Gamma\\\", \\\"[\\\
+\", RowBox[{StyleBox[\\\"a\\\", \\\"TI\\\"], \\\",\\\", \
+SubscriptBox[StyleBox[\\\"z\\\", \\\"TI\\\"], StyleBox[\\\"0\\\", \
+\\\"TR\\\"]], \\\",\\\", SubscriptBox[StyleBox[\\\"z\\\", \\\"TI\\\"], \
+StyleBox[\\\"1\\\", \\\"TR\\\"]]}], \\\"]\\\"}]\\) is the generalized \
+incomplete gamma function \\!\\(\\*RowBox[{RowBox[{\\\"\[CapitalGamma]\\\", \
+\\\"(\\\", RowBox[{\\\"a\\\", \\\",\\\", SubscriptBox[\\\"z\\\", \
+\\\"0\\\"]}], \\\")\\\"}], \\\"-\\\", RowBox[{\\\"\[CapitalGamma]\\\", \
+\\\"(\\\", RowBox[{\\\"a\\\", \\\",\\\", SubscriptBox[\\\"z\\\", \
+\\\"1\\\"]}], \\\")\\\"}]}]\\). \"\>", "InformationUsageText",
+             StripOnInput->False,
+             LineSpacing->{1.5, 1.5, 3.}],
+            FrameMargins->{{10, 10}, {8, 10}}],
+           BaseStyle->"InformationUsageSubtitleBackground",
+           StripOnInput->False], 
+          ItemBox["\<\"\"\>",
+           BaseStyle->"InformationUsageSubtitleBackground",
+           StripOnInput->False]},
+         {
+          PaneBox[GridBox[{
+             {
+              
+              DynamicModuleBox[{System`InformationDump`open$$ = {
+               False, False, False, False, False, False, False, False, False, 
+                False, False, False}}, 
+               StyleBox[GridBox[{
+                  {
+                   TagBox[
+                    TooltipBox[
+                    StyleBox["\<\" Documentation\"\>", "InformationRowLabel",
+                    StripOnInput->False],
+                    "\"Documentation\"",
+                    TooltipStyle->"TextStyling"],
+                    Annotation[#, "Documentation", "Tooltip"]& ], 
+                   TemplateBox[{
+                    
+                    TemplateBox[{
+                    "\"Local \[RightGuillemet]\"", "paclet:ref/Gamma", 
+                    "paclet:ref/Gamma", "Link", {
+                    RGBColor[0.9686274509803922, 0.4666666666666667, 0.]}, 
+                    BaseStyle -> {
+                    RGBColor[0.0784313725490196, 0.1568627450980392, 0.6]}}, 
+                    "HyperlinkTemplate"], "\"  \"", 
+                    StyleBox[
+                    "\"|\"", "InformationRowLabel", StripOnInput -> False], 
+                    "\"  \"", 
+                    TemplateBox[{"\"Web \[RightGuillemet]\"", {
+                    URL[
+                    "http://reference.wolfram.com/language/ref/Gamma.html"], 
+                    None}, "http://reference.wolfram.com/language/ref/Gamma.\
+html", "Hyperlink", {
+                    RGBColor[0.9686274509803922, 0.4666666666666667, 0.]}, 
+                    BaseStyle -> {
+                    RGBColor[0.0784313725490196, 0.1568627450980392, 0.6]}}, 
+                    "HyperlinkTemplate"]},
+                    "RowDefault"]},
+                  {
+                   TagBox[
+                    TooltipBox[
+                    StyleBox["\<\" Attributes\"\>", "InformationRowLabel",
+                    StripOnInput->False],
+                    "\"Attributes\"",
+                    TooltipStyle->"TextStyling"],
+                    Annotation[#, "Attributes", "Tooltip"]& ], 
+                   RowBox[{"{", 
+                    RowBox[{
+                    "Listable", ",", "NumericFunction", ",", "Protected", ",",
+                     "ReadProtected"}], "}"}]},
+                  {
+                   TagBox[
+                    TooltipBox[
+                    StyleBox["\<\" Full Name\"\>", "InformationRowLabel",
+                    StripOnInput->False],
+                    "\"FullName\"",
+                    TooltipStyle->"TextStyling"],
+                    
+                    Annotation[#, "FullName", 
+                    "Tooltip"]& ], "\<\"System`Gamma\"\>"}
+                 },
+                 AutoDelete->False,
+                 GridBoxAlignment->{"Columns" -> {Right, Left}},
+                 GridBoxDividers->None,
+                 GridBoxItemSize->{"Columns" -> {Automatic, Automatic}},
+                 GridBoxSpacings->{"Columns" -> {
+                    Offset[0.27999999999999997`], {
+                    Offset[0.5599999999999999]}, 
+                    Offset[0.27999999999999997`]}, "Rows" -> {
+                    Offset[0.2], {
+                    Offset[0.8]}, 
+                    Offset[0.2]}}], "DialogStyle",
+                StripOnInput->False],
+               DynamicModuleValues:>{}]}
+            },
+            DefaultBaseStyle->"Column",
+            GridBoxAlignment->{"Columns" -> {{Left}}},
+            GridBoxDividers->{"Columns" -> {{False}}, "Rows" -> {{False}}},
+            
+            GridBoxItemSize->{
+             "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+            GridBoxSpacings->{"Columns" -> {
+                Offset[0.27999999999999997`], {
+                 Offset[0.5599999999999999]}, 
+                Offset[0.27999999999999997`]}, "Rows" -> {
+                Offset[0.2], {
+                 Offset[3.6]}, 
+                Offset[0.2]}}],
+           FrameMargins->6], ""},
+         {
+          ItemBox[
+           TagBox[
+            ButtonBox[
+             PaneSelectorBox[{False->
+              
+              DynamicBox[FEPrivate`FrontEndResource[
+               "FEBitmaps", "UpPointerOpener"]], True->
+              
+              DynamicBox[FEPrivate`FrontEndResource[
+               "FEBitmaps", "UpPointerOpenerHot"]]}, Dynamic[
+              System`InformationDump`mouseOver$$]],
+             Alignment->Left,
+             Appearance->{"Default" -> None},
+             
+             ButtonFunction:>FEPrivate`Set[
+              System`InformationDump`open$$, False],
+             Evaluator->Automatic,
+             FrameMargins->{{9, 0}, {0, 0}},
+             ImageMargins->0,
+             ImageSize->Full,
+             Method->"Preemptive"],
+            
+            EventHandlerTag[{
+             "MouseEntered" :> 
+              FEPrivate`Set[System`InformationDump`mouseOver$$, True], 
+              "MouseExited" :> 
+              FEPrivate`Set[System`InformationDump`mouseOver$$, False], 
+              Method -> "Preemptive", PassEventsDown -> Automatic, 
+              PassEventsUp -> True}]],
+           BaseStyle->"InformationTitleBackground",
+           StripOnInput->False], "\[SpanFromLeft]"}
+        },
+        AutoDelete->False,
+        FrameStyle->Directive[
+          GrayLevel[0.8], 
+          Thickness[Tiny]],
+        GridBoxAlignment->{"Columns" -> {Left, Right}, "Rows" -> {{Center}}},
+        GridBoxDividers->{
+         "Columns" -> {{None}}, "Rows" -> {False, {True}, False}},
+        GridBoxItemSize->{
+         "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+       "Grid"], False->
+      TagBox[GridBox[{
+         {
+          ItemBox[
+           PaneBox[
+            StyleBox["\<\" Symbol\"\>", "InformationTitleText",
+             StripOnInput->False],
+            FrameMargins->{{4, 0}, {-1, 1}}],
+           BaseStyle->"InformationTitleBackground",
+           StripOnInput->False], 
+          ItemBox[
+           PaneBox[
+            TooltipBox[
+             ButtonBox[
+              PaneSelectorBox[{False->
+               
+               DynamicBox[FEPrivate`FrontEndResource[
+                "FEBitmaps", "InformationHelpIcon"],
+                ImageSizeCache->{13., {4., 9.}}], True->
+               
+               DynamicBox[FEPrivate`FrontEndResource[
+                "FEBitmaps", "InformationHelpIconHot"],
+                ImageSizeCache->{13., {4., 9.}}]}, Dynamic[
+                CurrentValue["MouseOver"]]],
+              Appearance->None,
+              BaseStyle->"Link",
+              ButtonData->"paclet:ref/Gamma",
+              ButtonNote->"paclet:ref/Gamma"],
+             "\"paclet:ref/Gamma\""],
+            FrameMargins->{{0, 4}, {0, 2}}],
+           BaseStyle->"InformationTitleBackground",
+           StripOnInput->False]},
+         {
+          ItemBox[
+           PaneBox[
+            
+            StyleBox["\<\"\\!\\(\\*RowBox[{\\\"Gamma\\\", \\\"[\\\", \
+StyleBox[\\\"z\\\", \\\"TI\\\"], \\\"]\\\"}]\\) is the Euler gamma function \
+\\!\\(\\*RowBox[{\\\"\[CapitalGamma]\\\", \\\"(\\\", \\\"z\\\", \
+\\\")\\\"}]\\). \\n\\!\\(\\*RowBox[{\\\"Gamma\\\", \\\"[\\\", \
+RowBox[{StyleBox[\\\"a\\\", \\\"TI\\\"], \\\",\\\", StyleBox[\\\"z\\\", \
+\\\"TI\\\"]}], \\\"]\\\"}]\\) is the incomplete gamma function \
+\\!\\(\\*RowBox[{\\\"\[CapitalGamma]\\\", \\\"(\\\", RowBox[{\\\"a\\\", \\\",\
+\\\", \\\"z\\\"}], \\\")\\\"}]\\). \\n\\!\\(\\*RowBox[{\\\"Gamma\\\", \\\"[\\\
+\", RowBox[{StyleBox[\\\"a\\\", \\\"TI\\\"], \\\",\\\", \
+SubscriptBox[StyleBox[\\\"z\\\", \\\"TI\\\"], StyleBox[\\\"0\\\", \
+\\\"TR\\\"]], \\\",\\\", SubscriptBox[StyleBox[\\\"z\\\", \\\"TI\\\"], \
+StyleBox[\\\"1\\\", \\\"TR\\\"]]}], \\\"]\\\"}]\\) is the generalized \
+incomplete gamma function \\!\\(\\*RowBox[{RowBox[{\\\"\[CapitalGamma]\\\", \
+\\\"(\\\", RowBox[{\\\"a\\\", \\\",\\\", SubscriptBox[\\\"z\\\", \
+\\\"0\\\"]}], \\\")\\\"}], \\\"-\\\", RowBox[{\\\"\[CapitalGamma]\\\", \
+\\\"(\\\", RowBox[{\\\"a\\\", \\\",\\\", SubscriptBox[\\\"z\\\", \
+\\\"1\\\"]}], \\\")\\\"}]}]\\). \"\>", "InformationUsageText",
+             StripOnInput->False,
+             LineSpacing->{1.5, 1.5, 3.}],
+            FrameMargins->{{10, 10}, {8, 10}}],
+           BaseStyle->"InformationUsageSubtitleBackground",
+           StripOnInput->False], 
+          ItemBox["\<\"\"\>",
+           BaseStyle->"InformationUsageSubtitleBackground",
+           StripOnInput->False]},
+         {
+          ItemBox[
+           TagBox[
+            ButtonBox[
+             PaneSelectorBox[{False->
+              
+              DynamicBox[FEPrivate`FrontEndResource[
+               "FEBitmaps", "DownPointerOpener"],
+               ImageSizeCache->{10., {3., 7.}}], True->
+              
+              DynamicBox[FEPrivate`FrontEndResource[
+               "FEBitmaps", "DownPointerOpenerHot"],
+               ImageSizeCache->{10., {3., 7.}}]}, Dynamic[
+              System`InformationDump`mouseOver$$]],
+             Alignment->Left,
+             Appearance->{"Default" -> None},
+             
+             ButtonFunction:>FEPrivate`Set[
+              System`InformationDump`open$$, True],
+             Evaluator->Automatic,
+             FrameMargins->{{9, 0}, {0, 0}},
+             ImageMargins->0,
+             ImageSize->Full,
+             Method->"Preemptive"],
+            
+            EventHandlerTag[{
+             "MouseEntered" :> 
+              FEPrivate`Set[System`InformationDump`mouseOver$$, True], 
+              "MouseExited" :> 
+              FEPrivate`Set[System`InformationDump`mouseOver$$, False], 
+              Method -> "Preemptive", PassEventsDown -> Automatic, 
+              PassEventsUp -> True}]],
+           BaseStyle->"InformationTitleBackground",
+           StripOnInput->False], "\[SpanFromLeft]"}
+        },
+        AutoDelete->False,
+        FrameStyle->Directive[
+          GrayLevel[0.8], 
+          Thickness[Tiny]],
+        GridBoxAlignment->{"Columns" -> {Left, Right}, "Rows" -> {{Center}}},
+        GridBoxDividers->{
+         "Columns" -> {{None}}, "Rows" -> {False, {True}, False}},
+        GridBoxItemSize->{
+         "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+       "Grid"]}, Dynamic[System`InformationDump`open$$],
+      BaselinePosition->Baseline,
+      FrameMargins->0,
+      ImageSize->Automatic],
+     DynamicModuleValues:>{}],
+    BaseStyle->"InformationGridFrame",
+    StripOnInput->False], "InformationGridPlain",
+   StripOnInput->False],
+  InformationData[
+   Association[
+   "ObjectType" -> "Symbol", "Usage" -> 
+    "\!\(\*RowBox[{\"Gamma\", \"[\", StyleBox[\"z\", \"TI\"], \"]\"}]\) is \
+the Euler gamma function \!\(\*RowBox[{\"\[CapitalGamma]\", \"(\", \"z\", \")\
+\"}]\). \n\!\(\*RowBox[{\"Gamma\", \"[\", RowBox[{StyleBox[\"a\", \"TI\"], \
+\",\", StyleBox[\"z\", \"TI\"]}], \"]\"}]\) is the incomplete gamma function \
+\!\(\*RowBox[{\"\[CapitalGamma]\", \"(\", RowBox[{\"a\", \",\", \"z\"}], \
+\")\"}]\). \n\!\(\*RowBox[{\"Gamma\", \"[\", RowBox[{StyleBox[\"a\", \"TI\"], \
+\",\", SubscriptBox[StyleBox[\"z\", \"TI\"], StyleBox[\"0\", \"TR\"]], \",\", \
+SubscriptBox[StyleBox[\"z\", \"TI\"], StyleBox[\"1\", \"TR\"]]}], \"]\"}]\) \
+is the generalized incomplete gamma function \!\(\*RowBox[{RowBox[{\"\
+\[CapitalGamma]\", \"(\", RowBox[{\"a\", \",\", SubscriptBox[\"z\", \"0\"]}], \
+\")\"}], \"-\", RowBox[{\"\[CapitalGamma]\", \"(\", RowBox[{\"a\", \",\", \
+SubscriptBox[\"z\", \"1\"]}], \")\"}]}]\). ", "Documentation" -> 
+    Association[
+     "Local" -> "paclet:ref/Gamma", "Web" -> 
+      "http://reference.wolfram.com/language/ref/Gamma.html"], "OwnValues" -> 
+    None, "UpValues" -> None, "DownValues" -> None, "SubValues" -> None, 
+    "DefaultValues" -> None, "NValues" -> None, "FormatValues" -> None, 
+    "Options" -> None, 
+    "Attributes" -> {Listable, NumericFunction, Protected, ReadProtected}, 
+    "FullName" -> "System`Gamma"], False]]], "Output",
+ CellChangeTimes->{{3.9150493152826543`*^9, 3.915049317658432*^9}},
+ CellLabel->"Out[15]=",ExpressionUUID->"158cbffc-606f-45be-8c61-5e4358f078ff"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Integrate", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"x", "^", "2"}], " ", 
+    RowBox[{"Gamma", "[", 
+     RowBox[{
+      RowBox[{"-", "2"}], ",", "x"}], "]"}]}], ",", 
+   RowBox[{"{", 
+    RowBox[{"x", ",", "0", ",", "Infinity"}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.9150494820876575`*^9, 3.9150495185991974`*^9}},
+ CellLabel->"In[18]:=",ExpressionUUID->"d85501f4-b03b-433f-bdae-01197db0d8c6"],
+
+Cell[BoxData[
+ FractionBox["1", "3"]], "Output",
+ CellChangeTimes->{{3.915049499506135*^9, 3.9150495194857454`*^9}},
+ CellLabel->"Out[18]=",ExpressionUUID->"cea5fc6b-7ae9-4195-90ae-ee4b198dbf30"]
+}, Open  ]]
+},
+WindowSize->{1440., 741.75},
+WindowMargins->{{1147.2, Automatic}, {Automatic, -4.8}},
+FrontEndVersion->"12.1 for Microsoft Windows (64-bit) (March 18, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"74ba4bbc-e23a-4637-b58f-6f69d6d10d93"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 192, 3, 28, "Input",ExpressionUUID->"682605b5-c841-4a6a-9cb7-5a5ad9ea8501"],
+Cell[775, 27, 262, 4, 32, "Output",ExpressionUUID->"6eef2607-5a7b-430d-a5e5-705b92bb4b65"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1074, 36, 648, 18, 28, "Input",ExpressionUUID->"268e7d4b-855d-4612-84d7-98078172594e"],
+Cell[1725, 56, 573, 16, 44, "Output",ExpressionUUID->"9b5a8636-eedf-4a7c-8d7f-0ca6e80ed289"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2335, 77, 407, 9, 28, "Input",ExpressionUUID->"1f8318dd-37e9-4be0-aeb6-5eea5f11a932"],
+Cell[2745, 88, 250, 4, 48, "Output",ExpressionUUID->"6335334e-4efe-4e43-a1ec-07480933e34d"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3032, 97, 270, 6, 28, "Input",ExpressionUUID->"99769c47-0b2b-4573-b5b2-10fb3829de7f"],
+Cell[3305, 105, 484, 13, 60, "Output",ExpressionUUID->"4ead4bda-5618-4db4-a651-55602af683cf"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3826, 123, 194, 3, 28, "Input",ExpressionUUID->"3d4c8a0a-fe32-4aec-8dc5-b2dd514e4f26"],
+Cell[4023, 128, 14915, 334, 147, "Output",ExpressionUUID->"158cbffc-606f-45be-8c61-5e4358f078ff"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[18975, 467, 431, 11, 28, "Input",ExpressionUUID->"d85501f4-b03b-433f-bdae-01197db0d8c6"],
+Cell[19409, 480, 195, 3, 71, "Output",ExpressionUUID->"cea5fc6b-7ae9-4195-90ae-ee4b198dbf30"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+

@@ -64,7 +64,7 @@ def BoxInt(x_list,y_list,style = "left"):
         
     return area*x_unit*y_unit
 
-def funct_BoxInt(xmin, xmax, n_den = 100, style="mp", function=linear_func, **kwargs):
+def funct_BoxInt(xmin, xmax, n_den = 100, style="mp", scale = "linear", function=linear_func, **kwargs):
     """ Functional Box Integrator
     Given some parameters and a function to model, with kwargs, this will use 
     the included BoxInt to integrate the function.
@@ -83,6 +83,8 @@ def funct_BoxInt(xmin, xmax, n_den = 100, style="mp", function=linear_func, **kw
     "mp" is where the rectangle's height is the midpoint (mean) between the two 
     adjacent y-values per step.
     
+    scale (string): "linear" or "log" depending on how the steps will be spread out within each x unit.
+    
     function: mathematical function that outputs numerical values. Must be able 
         to accept keyword arguments. The "x" parameter must be the first 
         variable in the function.
@@ -98,7 +100,12 @@ def funct_BoxInt(xmin, xmax, n_den = 100, style="mp", function=linear_func, **kw
     
     n = int((xmax - xmin)*n_den)
     
-    x_list = np.linspace(xmin,xmax,n)
+    if scale == "linear":
+        x_list = np.linspace(xmin,xmax,n)
+    elif scale == "log":
+        x_list = np.geomspace(xmin,xmax,n)
+    else:
+        raise ValueError("scale must equal either 'linear' or 'log'")
     y_list = function((x_list* u.dimensionless_unscaled).value,**kwargs)
 #     y_list = function(**kwargs)
     
