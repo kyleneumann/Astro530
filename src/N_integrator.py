@@ -64,7 +64,7 @@ def BoxInt(x_list,y_list,style = "left"):
         
     return area*x_unit*y_unit
 
-def funct_BoxInt(xmin, xmax, n_den = 100, style="mp", scale = "linear", function=linear_func, **kwargs):
+def funct_BoxInt(xmin, xmax, n_size = 1e-2, n_den = 100, style="mp", scale = "linear", function=linear_func, **kwargs):
     """ Functional Box Integrator
     Given some parameters and a function to model, with kwargs, this will use 
     the included BoxInt to integrate the function.
@@ -98,15 +98,99 @@ def funct_BoxInt(xmin, xmax, n_den = 100, style="mp", scale = "linear", function
     elif xmax == xmin: 
         return 0.
     
-    n = int((xmax - xmin)*n_den)
+    if n_size != 1e-2:
+        n = int((xmax - xmin)/n_size)
+    else:
+        n = int((xmax - xmin)*n_den)
     
     if scale == "linear":
         x_list = np.linspace(xmin,xmax,n)
     elif scale == "log":
-        x_list = np.geomspace(xmin,xmax,n)
+        x_list = np.float_power(10,np.arange(np.log10(xmin),np.log10(xmax),n_size))
     else:
         raise ValueError("scale must equal either 'linear' or 'log'")
     y_list = function((x_list* u.dimensionless_unscaled).value,**kwargs)
 #     y_list = function(**kwargs)
     
     return BoxInt(x_list,y_list,style)
+
+def converge(minlims=[1e-16,1], maxlims=[1.1,100], nlims=[1,1e5], iterations=30, 
+             tol=1e-6, cycles = 1, function = linear_func, **kwargs):
+
+    cycles = int(cycles)
+    iterations = int(iterations)
+    
+    if minlims[1] >= maxlims[0]:
+        raise ValueError("The upper minimum limit cannot be greater than the lower maximum limit.")
+    
+    unit = (minlims[0] * u.g/u.g).unit
+    
+    xmins = np.geomspace(minlims[1],minlims[0],iterations)*unit
+
+    xmaxs = np.linspace(maxlims[0],maxlims[1],iterations)*unit
+    xmax = 13*unit
+
+    n_vals = np.geomspace(nlims[0],nlims[1],iterations)
+    n = 10
+
+    min_index = 0
+    max_index = 0
+    n_index = 0
+
+    dy_min = []
+    dy_max = []
+    dy_n = []
+
+    indexes = []
+    for runs in range(cycles):
+        min_index = 0
+        max_index = 0
+        n_index = 0
+
+        dy_min = []
+        dy_max = []
+        dy_n = []
+
+        dy = 1
+        for i in range(len(xmins)):
+            if dy > tol:
+                xmin = xmins[i]
+
+                min_index = i
+                if i != 0:
+                    current = funct_BoxInt(xmin,xmax,n=n,function=function,**kwargs)
+                    past = funct_BoxInt(xmins[i-1],xmax,n=n,function=Planck,**kwargs)
+                    dy = abs(current-past)/past
+                    dy_min.append(dy.value)
+                    indexes.append(i)
+
+        dy = 1          
+        for i in range(len(xmaxs)):
+            if dy > tol:
+                xmax = xmaxs[i]
+
+                max_index = i
+                if i != 0:
+                    current = funct_BoxInt(xmin,xmax,n=n,function=Planck,**kwargs)
+                    past = funct_BoxInt(xmins[i-1],xmax,n=n,function=Planck,**kwargs)
+                    dy = abs(current-past)/past
+                    dy_max.append(dy.value)
+
+        dy = 1             
+        for i in range(len(n_vals)):
+            if dy > tol:
+                n = int(n_vals[i])
+
+                n_index = i
+                if i != 0:
+                    current = funct_BoxInt(xmin,xmax,n=n,function=Planck,**kwargs)
+                    past = funct_BoxInt(xmins[i-1],xmax,n=n,function=Planck,**kwargs)
+                    dy = abs(current-past)/past
+                    dy_n.append(dy.value)
+                    
+    return (dy_min, dy_max, dy_n)
+
+    # # Finding minimum parameters to solve for 
+    # for n in n_vals:
+    #     if dy > tol:
+    #         past = funct_BoxInt(xmin*u.um**-1,xmax*u.um**-1,n=n,function=Planck,T=T.value)
