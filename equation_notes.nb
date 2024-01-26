@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     21211,        523]
-NotebookOptionsPosition[     19620,        486]
-NotebookOutlinePosition[     20030,        502]
-CellTagsIndexPosition[     19987,        499]
+NotebookDataLength[     23815,        598]
+NotebookOptionsPosition[     22234,        561]
+NotebookOutlinePosition[     22630,        577]
+CellTagsIndexPosition[     22587,        574]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -23,13 +23,14 @@ Cell[CellGroupData[{
 Cell[BoxData[
  RowBox[{"?", "E_n"}]], "Input",
  CellChangeTimes->{{3.915048260246498*^9, 3.9150482690391936`*^9}},
- CellLabel->"In[2]:=",ExpressionUUID->"682605b5-c841-4a6a-9cb7-5a5ad9ea8501"],
+ CellLabel->"In[4]:=",ExpressionUUID->"682605b5-c841-4a6a-9cb7-5a5ad9ea8501"],
 
 Cell[BoxData[
  RowBox[{"Missing", "[", 
   RowBox[{"\<\"UnknownSymbol\"\>", ",", "\<\"E_n\"\>"}], "]"}]], "Output",
- CellChangeTimes->{{3.9150482660171847`*^9, 3.9150482692919755`*^9}},
- CellLabel->"Out[2]=",ExpressionUUID->"6eef2607-5a7b-430d-a5e5-705b92bb4b65"]
+ CellChangeTimes->{{3.9150482660171847`*^9, 3.9150482692919755`*^9}, 
+   3.915265450347028*^9},
+ CellLabel->"Out[4]=",ExpressionUUID->"f96c09a7-bd38-461e-ba06-1adf539c0318"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -52,7 +53,7 @@ Cell[BoxData[
       RowBox[{"t", ",", "x", ",", "Infinity"}], "}"}]}], "]"}]}]}]], "Input",
  CellChangeTimes->{{3.915048302186784*^9, 3.9150483376794024`*^9}, {
   3.9150484336958013`*^9, 3.9150484391195583`*^9}},
- CellLabel->"In[7]:=",ExpressionUUID->"268e7d4b-855d-4612-84d7-98078172594e"],
+ CellLabel->"In[5]:=",ExpressionUUID->"268e7d4b-855d-4612-84d7-98078172594e"],
 
 Cell[BoxData[
  TemplateBox[{
@@ -69,8 +70,9 @@ Cell[BoxData[
      RowBox[{
        RowBox[{"Re", "[", "x", "]"}], ">", "0"}]}]},
   "ConditionalExpression"]], "Output",
- CellChangeTimes->{3.9150483446676903`*^9, 3.9150484443750496`*^9},
- CellLabel->"Out[7]=",ExpressionUUID->"9b5a8636-eedf-4a7c-8d7f-0ca6e80ed289"]
+ CellChangeTimes->{3.9150483446676903`*^9, 3.9150484443750496`*^9, 
+  3.9152653008261557`*^9, 3.915265455141287*^9},
+ CellLabel->"Out[5]=",ExpressionUUID->"74cd71ce-1285-4a67-90b6-b97aa6baaee2"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -79,18 +81,94 @@ Cell[BoxData[
  RowBox[{"Integrate", "[", 
   RowBox[{
    RowBox[{"En", "[", 
-    RowBox[{"100", ",", "x"}], "]"}], ",", 
+    RowBox[{"n", ",", "x"}], "]"}], ",", 
    RowBox[{"{", 
     RowBox[{"x", ",", "0", ",", "Infinity"}], "}"}]}], "]"}]], "Input",
  CellChangeTimes->{{3.9150483556574683`*^9, 3.91504838636267*^9}, {
-  3.9150484193978233`*^9, 3.9150484648656454`*^9}},
- CellLabel->"In[12]:=",ExpressionUUID->"1f8318dd-37e9-4be0-aeb6-5eea5f11a932"],
+   3.9150484193978233`*^9, 3.9150484648656454`*^9}, 3.915265313195776*^9, {
+   3.915265373398108*^9, 3.91526537415733*^9}, {3.9152654597274218`*^9, 
+   3.915265461455286*^9}},
+ CellLabel->"In[10]:=",ExpressionUUID->"1f8318dd-37e9-4be0-aeb6-5eea5f11a932"],
 
 Cell[BoxData[
- FractionBox["1", "100"]], "Output",
+ TagBox[GridBox[{
+    {"\[Piecewise]", GridBox[{
+       {
+        FractionBox["1", "n"], 
+        RowBox[{
+         RowBox[{"Re", "[", "n", "]"}], ">", "0"}]},
+       {
+        RowBox[{"Integrate", "[", 
+         RowBox[{
+          TemplateBox[{
+            RowBox[{
+              SuperscriptBox["x", 
+               RowBox[{
+                 RowBox[{"-", "1"}], "+", "n"}]], " ", 
+              RowBox[{"Gamma", "[", 
+                RowBox[{
+                  RowBox[{"1", "-", "n"}], ",", "x"}], "]"}]}], 
+            RowBox[{"!", 
+              RowBox[{"(", 
+                RowBox[{
+                  RowBox[{"!", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"Im", "[", "x", "]"}], "\[NotEqual]", "0"}], "||", 
+                    RowBox[{
+                    RowBox[{"Re", "[", "x", "]"}], ">", "0"}]}], ")"}]}], 
+                  "&&", 
+                  RowBox[{"!", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"Im", "[", "x", "]"}], "\[NotEqual]", "0"}], "||", 
+                    RowBox[{
+                    RowBox[{"Re", "[", "x", "]"}], ">", "0"}]}], ")"}]}]}], 
+                ")"}]}]},
+           "ConditionalExpression"], ",", 
+          RowBox[{"{", 
+           RowBox[{"x", ",", "0", ",", "\[Infinity]"}], "}"}], ",", 
+          RowBox[{"Assumptions", "\[Rule]", 
+           RowBox[{
+            RowBox[{"Re", "[", "n", "]"}], "\[LessEqual]", "0"}]}]}], "]"}], 
+        TagBox["True",
+         "PiecewiseDefault",
+         AutoDelete->True]}
+      },
+      AllowedDimensions->{2, Automatic},
+      Editable->True,
+      GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+      GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{1.}}},
+      GridBoxSpacings->{"Columns" -> {
+          Offset[0.27999999999999997`], {
+           Offset[0.84]}, 
+          Offset[0.27999999999999997`]}, "Rows" -> {
+          Offset[0.2], {
+           Offset[0.4]}, 
+          Offset[0.2]}},
+      Selectable->True]}
+   },
+   GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{1.}}},
+   GridBoxSpacings->{"Columns" -> {
+       Offset[0.27999999999999997`], {
+        Offset[0.35]}, 
+       Offset[0.27999999999999997`]}, "Rows" -> {
+       Offset[0.2], {
+        Offset[0.4]}, 
+       Offset[0.2]}}],
+  "Piecewise",
+  DeleteWithContents->True,
+  Editable->False,
+  SelectWithContents->True,
+  Selectable->False,
+  StripWrapperBoxes->True]], "Output",
  CellChangeTimes->{{3.915048375336423*^9, 3.9150483875638485`*^9}, {
-  3.9150484209812202`*^9, 3.9150484867154493`*^9}},
- CellLabel->"Out[12]=",ExpressionUUID->"6335334e-4efe-4e43-a1ec-07480933e34d"]
+   3.9150484209812202`*^9, 3.9150484867154493`*^9}, 3.915265321578993*^9, 
+   3.915265375815249*^9, {3.915265455976527*^9, 3.9152654647646303`*^9}},
+ CellLabel->"Out[10]=",ExpressionUUID->"098370c4-ee8b-4e1d-a8fb-161834aefaed"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -101,7 +179,7 @@ Cell[BoxData[
    RowBox[{"-", "1"}], ",", "x"}], "]"}]], "Input",
  CellChangeTimes->{{3.915049302658292*^9, 3.915049308846139*^9}, 
    3.9150495138984923`*^9},
- CellLabel->"In[17]:=",ExpressionUUID->"99769c47-0b2b-4573-b5b2-10fb3829de7f"],
+ CellLabel->"In[7]:=",ExpressionUUID->"99769c47-0b2b-4573-b5b2-10fb3829de7f"],
 
 Cell[BoxData[
  TemplateBox[{
@@ -115,8 +193,9 @@ Cell[BoxData[
      RowBox[{
        RowBox[{"Re", "[", "x", "]"}], ">", "0"}]}]},
   "ConditionalExpression"]], "Output",
- CellChangeTimes->{3.915049309929859*^9, 3.915049516385361*^9},
- CellLabel->"Out[17]=",ExpressionUUID->"4ead4bda-5618-4db4-a651-55602af683cf"]
+ CellChangeTimes->{3.915049309929859*^9, 3.915049516385361*^9, 
+  3.915265455982658*^9},
+ CellLabel->"Out[7]=",ExpressionUUID->"ebcb734a-b8d3-4444-a5a3-282874a1d805"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -124,7 +203,7 @@ Cell[CellGroupData[{
 Cell[BoxData[
  RowBox[{"?", "Gamma"}]], "Input",
  CellChangeTimes->{{3.9150493135970197`*^9, 3.91504931743688*^9}},
- CellLabel->"In[15]:=",ExpressionUUID->"3d4c8a0a-fe32-4aec-8dc5-b2dd514e4f26"],
+ CellLabel->"In[8]:=",ExpressionUUID->"3d4c8a0a-fe32-4aec-8dc5-b2dd514e4f26"],
 
 Cell[BoxData[
  InterpretationBox[
@@ -157,9 +236,13 @@ Cell[BoxData[
                 CurrentValue["MouseOver"]]],
               Appearance->None,
               BaseStyle->"Link",
-              ButtonData->"paclet:ref/Gamma",
-              ButtonNote->"paclet:ref/Gamma"],
-             "\"paclet:ref/Gamma\""],
+              
+              ButtonData->
+               "http://reference.wolfram.com/language/ref/Gamma.html",
+              
+              ButtonNote->
+               "http://reference.wolfram.com/language/ref/Gamma.html"],
+             "\"http://reference.wolfram.com/language/ref/Gamma.html\""],
             FrameMargins->{{0, 4}, {0, 2}}],
            BaseStyle->"InformationTitleBackground",
            StripOnInput->False]},
@@ -197,8 +280,7 @@ incomplete gamma function \\!\\(\\*RowBox[{RowBox[{\\\"\[CapitalGamma]\\\", \
              {
               
               DynamicModuleBox[{System`InformationDump`open$$ = {
-               False, False, False, False, False, False, False, False, False, 
-                False, False, False}}, 
+               False, False, False, False, False, False}}, 
                StyleBox[GridBox[{
                   {
                    TagBox[
@@ -209,17 +291,6 @@ incomplete gamma function \\!\\(\\*RowBox[{RowBox[{\\\"\[CapitalGamma]\\\", \
                     TooltipStyle->"TextStyling"],
                     Annotation[#, "Documentation", "Tooltip"]& ], 
                    TemplateBox[{
-                    
-                    TemplateBox[{
-                    "\"Local \[RightGuillemet]\"", "paclet:ref/Gamma", 
-                    "paclet:ref/Gamma", "Link", {
-                    RGBColor[0.9686274509803922, 0.4666666666666667, 0.]}, 
-                    BaseStyle -> {
-                    RGBColor[0.0784313725490196, 0.1568627450980392, 0.6]}}, 
-                    "HyperlinkTemplate"], "\"  \"", 
-                    StyleBox[
-                    "\"|\"", "InformationRowLabel", StripOnInput -> False], 
-                    "\"  \"", 
                     TemplateBox[{"\"Web \[RightGuillemet]\"", {
                     URL[
                     "http://reference.wolfram.com/language/ref/Gamma.html"], 
@@ -280,7 +351,7 @@ html", "Hyperlink", {
                 Offset[0.2], {
                  Offset[3.6]}, 
                 Offset[0.2]}}],
-           FrameMargins->6], ""},
+           FrameMargins->{{6, 6}, {6, 3}}], ""},
          {
           ItemBox[
            TagBox[
@@ -349,9 +420,13 @@ html", "Hyperlink", {
                 CurrentValue["MouseOver"]]],
               Appearance->None,
               BaseStyle->"Link",
-              ButtonData->"paclet:ref/Gamma",
-              ButtonNote->"paclet:ref/Gamma"],
-             "\"paclet:ref/Gamma\""],
+              
+              ButtonData->
+               "http://reference.wolfram.com/language/ref/Gamma.html",
+              
+              ButtonNote->
+               "http://reference.wolfram.com/language/ref/Gamma.html"],
+             "\"http://reference.wolfram.com/language/ref/Gamma.html\""],
             FrameMargins->{{0, 4}, {0, 2}}],
            BaseStyle->"InformationTitleBackground",
            StripOnInput->False]},
@@ -392,11 +467,11 @@ incomplete gamma function \\!\\(\\*RowBox[{RowBox[{\\\"\[CapitalGamma]\\\", \
               
               DynamicBox[FEPrivate`FrontEndResource[
                "FEBitmaps", "DownPointerOpener"],
-               ImageSizeCache->{10., {3., 7.}}], True->
+               ImageSizeCache->{10., {2., 8.}}], True->
               
               DynamicBox[FEPrivate`FrontEndResource[
                "FEBitmaps", "DownPointerOpenerHot"],
-               ImageSizeCache->{10., {3., 7.}}]}, Dynamic[
+               ImageSizeCache->{10., {2., 8.}}]}, Dynamic[
               System`InformationDump`mouseOver$$]],
              Alignment->Left,
              Appearance->{"Default" -> None},
@@ -436,8 +511,7 @@ incomplete gamma function \\!\\(\\*RowBox[{RowBox[{\\\"\[CapitalGamma]\\\", \
     BaseStyle->"InformationGridFrame",
     StripOnInput->False], "InformationGridPlain",
    StripOnInput->False],
-  InformationData[
-   Association[
+  InformationData[<|
    "ObjectType" -> "Symbol", "Usage" -> 
     "\!\(\*RowBox[{\"Gamma\", \"[\", StyleBox[\"z\", \"TI\"], \"]\"}]\) is \
 the Euler gamma function \!\(\*RowBox[{\"\[CapitalGamma]\", \"(\", \"z\", \")\
@@ -450,17 +524,17 @@ SubscriptBox[StyleBox[\"z\", \"TI\"], StyleBox[\"1\", \"TR\"]]}], \"]\"}]\) \
 is the generalized incomplete gamma function \!\(\*RowBox[{RowBox[{\"\
 \[CapitalGamma]\", \"(\", RowBox[{\"a\", \",\", SubscriptBox[\"z\", \"0\"]}], \
 \")\"}], \"-\", RowBox[{\"\[CapitalGamma]\", \"(\", RowBox[{\"a\", \",\", \
-SubscriptBox[\"z\", \"1\"]}], \")\"}]}]\). ", "Documentation" -> 
-    Association[
-     "Local" -> "paclet:ref/Gamma", "Web" -> 
-      "http://reference.wolfram.com/language/ref/Gamma.html"], "OwnValues" -> 
-    None, "UpValues" -> None, "DownValues" -> None, "SubValues" -> None, 
-    "DefaultValues" -> None, "NValues" -> None, "FormatValues" -> None, 
-    "Options" -> None, 
+SubscriptBox[\"z\", \"1\"]}], \")\"}]}]\). ", 
+    "Documentation" -> <|
+     "Web" -> "http://reference.wolfram.com/language/ref/Gamma.html"|>, 
+    "OwnValues" -> None, "UpValues" -> None, "DownValues" -> None, 
+    "SubValues" -> None, "DefaultValues" -> None, "NValues" -> None, 
+    "FormatValues" -> None, "Options" -> None, 
     "Attributes" -> {Listable, NumericFunction, Protected, ReadProtected}, 
-    "FullName" -> "System`Gamma"], False]]], "Output",
- CellChangeTimes->{{3.9150493152826543`*^9, 3.915049317658432*^9}},
- CellLabel->"Out[15]=",ExpressionUUID->"158cbffc-606f-45be-8c61-5e4358f078ff"]
+    "FullName" -> "System`Gamma"|>, False]]], "Output",
+ CellChangeTimes->{{3.9150493152826543`*^9, 3.915049317658432*^9}, 
+   3.915265456060899*^9},
+ CellLabel->"Out[8]=",ExpressionUUID->"39178d73-8bb1-4e3e-a514-75a0e6275091"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -476,17 +550,18 @@ Cell[BoxData[
    RowBox[{"{", 
     RowBox[{"x", ",", "0", ",", "Infinity"}], "}"}]}], "]"}]], "Input",
  CellChangeTimes->{{3.9150494820876575`*^9, 3.9150495185991974`*^9}},
- CellLabel->"In[18]:=",ExpressionUUID->"d85501f4-b03b-433f-bdae-01197db0d8c6"],
+ CellLabel->"In[9]:=",ExpressionUUID->"d85501f4-b03b-433f-bdae-01197db0d8c6"],
 
 Cell[BoxData[
  FractionBox["1", "3"]], "Output",
- CellChangeTimes->{{3.915049499506135*^9, 3.9150495194857454`*^9}},
- CellLabel->"Out[18]=",ExpressionUUID->"cea5fc6b-7ae9-4195-90ae-ee4b198dbf30"]
+ CellChangeTimes->{{3.915049499506135*^9, 3.9150495194857454`*^9}, 
+   3.9152654565020237`*^9},
+ CellLabel->"Out[9]=",ExpressionUUID->"6d3dc5e7-9778-47a4-9884-4fade299d03f"]
 }, Open  ]]
 },
-WindowSize->{1440., 741.75},
-WindowMargins->{{1147.2, Automatic}, {Automatic, -4.8}},
-FrontEndVersion->"12.1 for Microsoft Windows (64-bit) (March 18, 2020)",
+WindowSize->{2560, 1291},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"13.2 for Mac OS X x86 (64-bit) (January 30, 2023)",
 StyleDefinitions->"Default.nb",
 ExpressionUUID->"74ba4bbc-e23a-4637-b58f-6f69d6d10d93"
 ]
@@ -502,32 +577,30 @@ CellTagsIndex->{}
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[580, 22, 192, 3, 28, "Input",ExpressionUUID->"682605b5-c841-4a6a-9cb7-5a5ad9ea8501"],
-Cell[775, 27, 262, 4, 32, "Output",ExpressionUUID->"6eef2607-5a7b-430d-a5e5-705b92bb4b65"]
+Cell[580, 22, 192, 3, 30, "Input",ExpressionUUID->"682605b5-c841-4a6a-9cb7-5a5ad9ea8501"],
+Cell[775, 27, 288, 5, 34, "Output",ExpressionUUID->"f96c09a7-bd38-461e-ba06-1adf539c0318"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1074, 36, 648, 18, 28, "Input",ExpressionUUID->"268e7d4b-855d-4612-84d7-98078172594e"],
-Cell[1725, 56, 573, 16, 44, "Output",ExpressionUUID->"9b5a8636-eedf-4a7c-8d7f-0ca6e80ed289"]
+Cell[1100, 37, 648, 18, 30, "Input",ExpressionUUID->"268e7d4b-855d-4612-84d7-98078172594e"],
+Cell[1751, 57, 622, 17, 46, "Output",ExpressionUUID->"74cd71ce-1285-4a67-90b6-b97aa6baaee2"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[2335, 77, 407, 9, 28, "Input",ExpressionUUID->"1f8318dd-37e9-4be0-aeb6-5eea5f11a932"],
-Cell[2745, 88, 250, 4, 48, "Output",ExpressionUUID->"6335334e-4efe-4e43-a1ec-07480933e34d"]
+Cell[2410, 79, 529, 11, 30, "Input",ExpressionUUID->"1f8318dd-37e9-4be0-aeb6-5eea5f11a932"],
+Cell[2942, 92, 2915, 78, 96, "Output",ExpressionUUID->"098370c4-ee8b-4e1d-a8fb-161834aefaed"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[3032, 97, 270, 6, 28, "Input",ExpressionUUID->"99769c47-0b2b-4573-b5b2-10fb3829de7f"],
-Cell[3305, 105, 484, 13, 60, "Output",ExpressionUUID->"4ead4bda-5618-4db4-a651-55602af683cf"]
+Cell[5894, 175, 269, 6, 30, "Input",ExpressionUUID->"99769c47-0b2b-4573-b5b2-10fb3829de7f"],
+Cell[6166, 183, 508, 14, 61, "Output",ExpressionUUID->"ebcb734a-b8d3-4444-a5a3-282874a1d805"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[3826, 123, 194, 3, 28, "Input",ExpressionUUID->"3d4c8a0a-fe32-4aec-8dc5-b2dd514e4f26"],
-Cell[4023, 128, 14915, 334, 147, "Output",ExpressionUUID->"158cbffc-606f-45be-8c61-5e4358f078ff"]
+Cell[6711, 202, 193, 3, 30, "Input",ExpressionUUID->"3d4c8a0a-fe32-4aec-8dc5-b2dd514e4f26"],
+Cell[6907, 207, 14619, 329, 143, "Output",ExpressionUUID->"39178d73-8bb1-4e3e-a514-75a0e6275091"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[18975, 467, 431, 11, 28, "Input",ExpressionUUID->"d85501f4-b03b-433f-bdae-01197db0d8c6"],
-Cell[19409, 480, 195, 3, 71, "Output",ExpressionUUID->"cea5fc6b-7ae9-4195-90ae-ee4b198dbf30"]
+Cell[21563, 541, 430, 11, 30, "Input",ExpressionUUID->"d85501f4-b03b-433f-bdae-01197db0d8c6"],
+Cell[21996, 554, 222, 4, 50, "Output",ExpressionUUID->"6d3dc5e7-9778-47a4-9884-4fade299d03f"]
 }, Open  ]]
 }
 ]
 *)
-
-(* End of internal cache information *)
 
