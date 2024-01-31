@@ -3,6 +3,8 @@ from astropy import constants as const
 import numpy as np
 import math
 
+from scipy.integrate import simpson
+
 def linear_func(x,m=1,b=0):
     return m*x + b
 
@@ -294,7 +296,59 @@ def converge(minlims=[1e-16,1], maxlims=[1.1,100], nlims=[1,1e5], iterations=30,
                     
     return (dy_min, dy_max, dy_n)
 
-    # # Finding minimum parameters to solve for 
-    # for n in n_vals:
-    #     if dy > tol:
-    #         past = funct_BoxInt(xmin*u.um**-1,xmax*u.um**-1,n=n,function=Planck,T=T.value)
+def simpson_wrapper(xmin, xmax, n_size = 1e-2, n_den = None, scale = "linear", function = linear_func, **kwargs):
+    """ Functional Simpson Integrator
+    Given some parameters and a function to model, with kwargs, this will use 
+    Simpson rule via scipy to integrate the function.
+    
+    input parameters:
+    
+    xmin (float): minimum x value of integration.
+    
+    xmax (float): maximum x value of integration.
+    
+    n_size (float or int): step size in linear or log space.
+    
+    style (string): "right", "left", and "mp". Determines how the integral sum 
+    is set up. "left" is where the rectangle's height is the left y-value per 
+    step. "right" is where the rectangle's height is the right y-value per step.
+    "mp" is where the rectangle's height is the midpoint (mean) between the two 
+    adjacent y-values per step.
+    
+    scale (string): "linear" or "log" depending on how the steps will be spread out within each x unit.
+    
+    function: mathematical function that outputs numerical values. Must be able 
+        to accept keyword arguments. The "x" parameter must be the first 
+        variable in the function.
+        
+    **kwargs: variables to input into mathematical function. Make sure the names 
+        agree with the given function. This is only required for the unchanging 
+        argument as the x-axis is being integrated over. 
+    """
+    
+    if xmax < xmin:
+        raise ValueError("xmax must be greater than xmin.")
+    elif xmax == xmin: 
+        return 0.
+    
+    if n_den == None or n_den <= 0:
+        n = int((xmax - xmin)/n_size)
+    else:
+        n = int((xmax - xmin)*n_den)
+        
+    if scale == "linear":
+        x_arr = np.linspace(xmin, xmax, n)
+    elif scale == "log":
+        if xmin <= 0: raise ValueError("Don't use negative bounds when using logspace.")
+        
+        logxmin = np.log10(xmin)
+        logxmax = np.log10(xmax)
+       
+        x_arr = np.logspace(logxmin,logxmax, int((logxmax-logxmin)/n_size))
+        
+    else:
+        raise ValueError("scale must equal either 'linear' or 'log'")
+        
+    y_list = function(x_arr,**kwargs)
+    
+    return simpson(y_list, x = x_arr)
