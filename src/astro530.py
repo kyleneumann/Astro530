@@ -3,6 +3,9 @@ from astropy import constants as const
 import numpy as np
 import math
 
+from src import N_integrator
+simpson_wrapper = N_integrator.simpson_wrapper
+
 def Planck(nu=1,T=1000):
     """Planck Function
 
@@ -60,100 +63,6 @@ def Planck(nu=1,T=1000):
     
     #den = math.exp(h*c/kB * nu/T)-1
     return (Bv*unit/u.sr).to(u.erg/u.s/u.sr/u.cm**2/u.Hz)
-  
-def BoxInt(x_list,y_list,style = "left"):
-    """Box Integrator
-    
-    input parameters:
-    
-    x_list (list-like): List of x values for each given y value.
-    y_list (list-like): List of y values for each given x value.
-    style (string): "right", "left", and "mp". Determines how the integral sum is set up. "left" is where the rectangle's height is the left y-value per step. "right" is where the rectangle's height is the right y-value per step. "mp" is where the rectangle's height is the midpoint (mean) between the two adjacent y-values per step.
-    
-    output parameters:
-    
-    area (float): area under the given curve
-    """
-    
-    x_unit = (x_list*u.g/u.g).unit
-    x_list = (x_list*u.g/u.g).value
-    
-    y_unit = (y_list*u.g/u.g).unit
-    y_list = (y_list*u.g/u.g).value
-    
-    if len(x_list) != len(y_list):
-        raise ValueError("x_list and y_list must be the same length.")
-    
-    dx_list = []
-    for i in range(len(x_list)):
-        if i == len(x_list)-1:
-            pass
-        else:
-            dx = x_list[i+1]-x_list[i]
-            if dx < 0:
-                raise ValueError("x_list must be in ascending order.")
-            dx_list.append(dx)
-           
-    if len(x_list) - len(dx_list) != 1:
-        raise ValueError("Logic is lost.")
-        
-    h_list = []
-    
-    if style == "left":
-        for i in range(len(dx_list)):
-            h_list.append(y_list[i])
-    elif style =="right":
-        for i in range(len(dx_list)):
-            h_list.append(y_list[i+1])
-    elif style =="mp":
-        for i in range(len(dx_list)):
-            midpoint = (y_list[i]+y_list[i+1])/2
-            h_list.append(midpoint)
-    else: raise ValueError("The style variable must be either 'left', 'right', or 'mp'.")
-    
-    area = 0
-    
-    area = np.sum(np.array(dx_list)*np.array(h_list))
-#     for i in range(len(dx_list)):
-#         area += dx_list[i]*h_list[i]
-        
-    return area*x_unit*y_unit
-
-def funct_BoxInt(xmin, xmax, n = 100, style="mp", function=Planck, **kwargs):
-    """ Functional Box Integrator
-    Given some parameters and a function to model, with kwargs, this will use 
-    the included BoxInt to integrate the function.
-    
-    input parameters:
-    
-    xmin (float): minimum x value of integration.
-    
-    xmax (float): maximum x value of integration.
-    
-    n (int): number of steps in integration.
-    
-    style (string): "right", "left", and "mp". Determines how the integral sum 
-    is set up. "left" is where the rectangle's height is the left y-value per 
-    step. "right" is where the rectangle's height is the right y-value per step.
-    "mp" is where the rectangle's height is the midpoint (mean) between the two 
-    adjacent y-values per step.
-    
-    function: mathematical function that outputs numerical values. Must be able 
-        to accept keyword arguments. The "x" parameter must be the first 
-        variable in the function.
-        
-    **kwargs: variables to input into mathematical function. Make sure the names 
-        agree with the given function. This is only required for the unchanging 
-        argument as the x-axis is being integrated over. 
-    """
-    
-    n = int(n)
-    
-    x_list = np.linspace(xmin,xmax,n)
-    y_list = function((x_list* u.dimensionless_unscaled).value,**kwargs)
-#     y_list = function(**kwargs)
-    
-    return BoxInt(x_list,y_list,style)
 
 def Planck_Int(Temp):
     """Planck Integral
@@ -176,4 +85,80 @@ def Planck_Int(Temp):
     
     return analytic_sol
 
+def source_func(t, a0 = 1, a1 = 1, a2 = 1):
+    """ Radiative transfer source function
+    Given τ_ν as a single value or an array, and key word values for a_n where 
+    n < 3, the function will output the source function value. This is viable 
+    up to quadratic form.
+    
+    input parameters:
+    
+    t [float or array]: values for τ_ν, the optical depth.
+    a0 [float]: Named variable for the zeroth order source term
+    a1 [float]: Named variable for the linear source term
+    a2 [float]: Named variable for the quadratic source term. Set to zero for a 
+                linear source function.
+                
+    output values:
+    
+    S_ν [float or array]: outputs the value(s) for the source function. 
+    
+    """
+    return a0+a1*t+a2*t**2
+
+def SvxEn(tval, tau = 0, n=2, src_func = source_func, **kwargs):
+    from scipy.special import expn
+    
+    S = src_func(tval, **kwargs)
+    
+    if n == 1 and abs(tval-tau) == 0: return S*229.7  # E1(1e-100)
+    
+    En = expn(n,abs(tval-tau))
+    
+    return S*En
+
+def astrophysical_flux(t_arr, tmin = 0, tmax = 1e2, n_size = 1e-5, src_func = source_func, 
+                       int_wrapper=simpson_wrapper, **kwargs):
+    """ Astrophysical Flux H_ν(t)
+    Given an array of τ_ν, an optional function variable and keywords for said 
+    function, this function will output the astrophysical flux at zero optical 
+    depth as calculated using numerical integration with scipy.integrate.simpson  
+    
+    input parameters:
+    
+    t_arr [array-like]: values for optical depth from 0 to infinity.
+    src_dunc [function]: name of the source function's function which is given 
+                         at least optical depth values in array form. 
+    int_wrapper [function]: name of the integration wrapper function which will 
+                            numerically solve the flux problem. Make sure the 
+                            function's inputs follow the same format as 
+                            N_integrator.simpson_wrapper. 
+    kwargs: keyword arguments for the source function and integrator.
+    
+    output values:
+    
+    H_ν(0) [float]: Outputs the value for the astrophysical flux at a τ_ν = 0.
+    """
+    
+    t_arr = np.array(t_arr)
+#     S_arr = src_func(t_arr,**kwargs)
+#     E2_arr = expn(2,t_arr)
+    
+#     y_arr = np.array(S_arr * E2_arr)
+    
+    Hv = np.zeros(len(t_arr))
+    
+    for i in range(len(t_arr)):
+        tv = t_arr[i]
+        
+        if tv < 0: raise ValueError("Optical depth cannot be negative. Fix index = "+str(i))
+        
+        outward = int_wrapper(tv,tmax,n_size = n_size, scale = "log", function=SvxEn, 
+                                  tau = tv, n = 2, src_func = src_func, **kwargs)
+        inward = -int_wrapper(tmin,tv,n_size = n_size, scale = "log", function=SvxEn, 
+                                      tau = tv, n = 2, src_func=src_func, **kwargs)
+        Hv[i] = 1/2*(outward+inward)
+    #return y_arr
+    
+    return Hv
 

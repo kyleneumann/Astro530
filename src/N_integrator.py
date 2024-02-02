@@ -339,12 +339,20 @@ def simpson_wrapper(xmin, xmax, n_size = 1e-2, n_den = None, scale = "linear", f
     if scale == "linear":
         x_arr = np.linspace(xmin, xmax, n)
     elif scale == "log":
-        if xmin <= 0: raise ValueError("Don't use negative bounds when using logspace.")
-        
-        logxmin = np.log10(xmin)
         logxmax = np.log10(xmax)
-       
-        x_arr = np.logspace(logxmin,logxmax, int((logxmax-logxmin)/n_size))
+        
+        if xmin < 0: raise ValueError("Don't use negative bounds when using logspace.")
+        
+        elif xmin == 0:
+            logxmin = np.log10(1e-16)
+            if logxmax == -16: 
+                return 0
+            x_arr = np.logspace(logxmin,logxmax, int((logxmax-logxmin)/n_size-1))
+            x_arr = np.append([0],x_arr)
+        else:
+            logxmin = np.log10(xmin)
+            x_arr = np.logspace(logxmin,logxmax, int((logxmax-logxmin)/n_size))
+        
         
     else:
         raise ValueError("scale must equal either 'linear' or 'log'")
