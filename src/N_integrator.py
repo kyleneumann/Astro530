@@ -359,4 +359,9 @@ def simpson_wrapper(xmin, xmax, n_size = 1e-2, n_den = None, scale = "linear", f
         
     y_list = function(x_arr,**kwargs)
     
+#     sim_arr = []
+    
+#     for i in range(np.shape(y_list)[0]):
+#         sim_arr.append(simpson(y_list[i], x = x_arr))
+    
     return simpson(y_list, x = x_arr)

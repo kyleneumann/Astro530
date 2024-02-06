@@ -3,6 +3,8 @@ from astropy import constants as const
 import numpy as np
 import math
 
+from scipy.special import expn
+
 from src import N_integrator
 simpson_wrapper = N_integrator.simpson_wrapper
 
@@ -85,6 +87,70 @@ def Planck_Int(Temp):
     
     return analytic_sol
 
+def Planck_tau(t, nu=[10], Teff = 5000*u.K):
+    """Planck Function in terms of tau
+    Default units are um^-1 for wavenumber and K for effective temperature.
+    
+    Input Parameters:
+        t [array-like]: Array or list of optical depth values or a singlular value
+        nu [array-like]: Array or list of wavenumber 
+        Teff [float or astropy Quantity]: Value for effective temperature. Default is 5000 K.
+    
+    Output: B_ν (τ) [erg/s/cm^2/sr/Hz
+
+    """
+    
+    # Get length of nu and tell if its a single value or list-like
+    try:
+        len_nu = len(nu)
+    except:
+        len_nu = 1
+        nu = [nu]
+        
+    try:
+        len_t = len(t)
+        t_arr = np.array(t)
+    except:
+        len_t = 1
+        t_arr = np.array([t])
+        
+    if (t_arr[0] * u.g).unit != u.g: 
+        raise TypeError("Optical depth, t, must be unitless")
+        
+    if (nu[0] * u.g).unit == u.g:
+        nu_arr = np.array(nu)/u.um
+    else:
+        nu_arr = np.array(nu)/u.um
+        
+    if (Teff * u.g).unit == u.g:
+        Teff = Teff * u.K
+    
+    kB = const.k_B
+    c = const.c
+    h = const.h
+    
+    T_arr = Teff*(3/4*(t_arr+2/3))**(1/4)
+    
+    Bv_arr = np.zeros((len_nu,len_t))
+    
+    for i in range(len_nu):
+        nu = nu_arr[i]
+        num = 2*h*c*nu**3
+        
+        for j in range(len_t):
+            T=T_arr[j]
+            exponent = h*c/kB * nu/T
+            
+            den = math.exp(exponent)-1  
+            if np.isnan((num/den).value):
+                Bv_arr[i,j] = 0
+            else:
+                Bv_arr[i,j] = (num/den).value
+            
+            if i == 0 and j == 0:
+                Bv_unit = (num/den).unit/u.sr
+    return (Bv_arr*Bv_unit).to(u.erg/u.s/u.sr/u.cm**2/u.Hz)
+
 def source_func(t, a0 = 1, a1 = 1, a2 = 1):
     """ Radiative transfer source function
     Given τ_ν as a single value or an array, and key word values for a_n where 
@@ -107,8 +173,6 @@ def source_func(t, a0 = 1, a1 = 1, a2 = 1):
     return a0+a1*t+a2*t**2
 
 def SvxEn(tval, tau = 0, n=2, src_func = source_func, **kwargs):
-    from scipy.special import expn
-    
     S = src_func(tval, **kwargs)
     
     if n == 1 and abs(tval-tau) == 0: return S*229.7  # E1(1e-100)
@@ -117,11 +181,11 @@ def SvxEn(tval, tau = 0, n=2, src_func = source_func, **kwargs):
     
     return S*En
 
-def astrophysical_flux(t_arr, tmin = 0, tmax = 1e2, n_size = 1e-5, src_func = source_func, 
+def eddington_flux(t_arr, tmin = 0, tmax = 1e2, n_size = 1e-5, src_func = source_func, 
                        int_wrapper=simpson_wrapper, **kwargs):
-    """ Astrophysical Flux H_ν(t)
+    """ Eddington Flux H_ν(t)
     Given an array of τ_ν, an optional function variable and keywords for said 
-    function, this function will output the astrophysical flux at zero optical 
+    function, this function will output the eddington flux at zero optical 
     depth as calculated using numerical integration with scipy.integrate.simpson  
     
     input parameters:
@@ -137,18 +201,28 @@ def astrophysical_flux(t_arr, tmin = 0, tmax = 1e2, n_size = 1e-5, src_func = so
     
     output values:
     
-    H_ν(0) [float]: Outputs the value for the astrophysical flux at a τ_ν = 0.
+    H_ν(0) [float]: Outputs the value for the eddington flux at a τ_ν = 0.
     """
+    t_arr = np.array([t_arr])
+    src0 = src_func(t_arr[0], **kwargs)
+    src_shape = np.shape(src0)
     
-    t_arr = np.array(t_arr)
-#     S_arr = src_func(t_arr,**kwargs)
-#     E2_arr = expn(2,t_arr)
+    if (src0*u.g).unit == u.g:
+        Hv_unit = 1
+    else:
+        Hv_unit = src0.unit * u.sr
+        
+    if src_shape[0] == 1:    
+        Hv = np.zeros(len(t_arr))
+        twoD = False
+    else:
+        Hv = np.zeros((src_shape[0],len(t_arr))).T
+        twoD = True
     
-#     y_arr = np.array(S_arr * E2_arr)
+    len_t = len(t_arr)
     
-    Hv = np.zeros(len(t_arr))
-    
-    for i in range(len(t_arr)):
+    for i in range(len_t):
+        
         tv = t_arr[i]
         
         if tv < 0: raise ValueError("Optical depth cannot be negative. Fix index = "+str(i))
@@ -157,8 +231,16 @@ def astrophysical_flux(t_arr, tmin = 0, tmax = 1e2, n_size = 1e-5, src_func = so
                                   tau = tv, n = 2, src_func = src_func, **kwargs)
         inward = -int_wrapper(tmin,tv,n_size = n_size, scale = "log", function=SvxEn, 
                                       tau = tv, n = 2, src_func=src_func, **kwargs)
-        Hv[i] = 1/2*(outward+inward)
-    #return y_arr
-    
-    return Hv
-
+        if twoD:
+            Hv_temp = 1/2*(outward+inward)
+            for j in range(src_shape[0]):
+                Hv[i,j] = Hv_temp[j]
+        else:
+            Hv[i] = 1/2*(outward+inward)
+        if len_t > 4:
+            if i == 0: print(round(100/len_t,0),"% Done")    
+            if i%int(len_t/4): print("25% Done")
+            if i%int(len_t/2): print("50% Done")
+            if i%int(3*len_t/4): print("75% Done")
+            
+    return Hv*Hv_unit
