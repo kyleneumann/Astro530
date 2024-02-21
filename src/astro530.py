@@ -2,8 +2,10 @@ from astropy import units as u
 from astropy import constants as const
 import numpy as np
 import math
+import pandas
 
 from scipy.special import expn
+from scipy.interpolate import UnivariateSpline
 
 from src import N_integrator
 simpson_wrapper = N_integrator.simpson_wrapper
@@ -244,3 +246,156 @@ def eddington_flux(t_arr, tmin = 0, tmax = 1e2, n_size = 1e-5, src_func = source
             if i%int(3*len_t/4): print("75% Done")
             
     return Hv*Hv_unit
+
+def species_name_correction(species):
+    species_list = list(species)
+    if len(species_list) > 3:
+        if species_list[-1] == "I" and species_list[-2] == "I" and species_list[-3] == "I":
+            species = "".join(species[:-3]+"++")
+        elif species_list[-1] == "I" and species_list[-2] == "I":
+            species = "".join(species[:-2]+"+")
+        elif species_list[-1] == "I":
+            species = "".join(species[:-1])
+            
+    elif len(species_list) > 2:
+        if species_list[-1] == "I" and species_list[-2] == "I":
+            species = "".join(species[:-2]+"+")
+        elif species_list[-1] == "I":
+            species = "".join(species[:-1])
+            
+    elif len(species_list) > 1:
+        if species_list[-1] == "I":
+            species = "".join(species[:-1])
+            
+    return species
+def partition(species="H",temp=5000,s_val = 0,k_val = 2,func = None, **kwargs):
+    """Partition function from Gray 3 ed.
+    
+    Inputs:
+    
+    species (string): Species name you want a partition function for. Can be 
+                    inputted as XIII or X++. If species is not in Gray, function 
+                    will tell you.
+                    
+    temp (float or array): Temperature of material to look at in Kelvin.
+    
+    s_val: for spline value
+    
+    k_val: for spline curve
+    
+    Outputs:
+    
+    Partition function value of a species given a temperature"""
+    
+    try:
+        rpf_df = pandas.read_csv("data/RepairedPartitionFunctions.csv")
+    except:
+        rpf_df = pandas.read_csv("../data/RepairedPartitionFunctions.csv")
+        
+    species = species_name_correction(species)
+    
+    if species == "H+": 
+        species = "He"
+        
+    elif species == "H-": 
+        chi = 0.755
+        g0 = 1
+        theta = 5040/temp
+        
+        return g0*10**(-theta*chi)
+    try:
+        data = rpf_df.loc[rpf_df["Theta="]==species].to_numpy()[0][1:-1]
+    except:
+        species = "He"
+        data = rpf_df.loc[rpf_df["Theta="]==species].to_numpy()[0][1:-1]
+    
+    log_g0 = float(rpf_df.loc[rpf_df["Theta="]==species].log_g0.values[0])
+    
+    th = 5040/temp
+    
+    theta = []
+    temp_data = []
+    
+    for i,d in enumerate(data):
+        if d != "-":
+            temp_data.append(float(d))
+            theta.append(0.2*(i+1))
+            
+    if log_g0 != "-":
+        temp_data.append(log_g0)
+        theta.append(10)
+        temp_data.append(log_g0)
+        theta.append(12)
+        temp_data.append(log_g0)
+        theta.append(15)
+        temp_data.append(log_g0)
+        theta.append(20)
+        
+    data = np.array(temp_data,dtype="float")
+    theta = np.array(theta)
+    
+    if func == None:
+        p_US = UnivariateSpline(theta,data,s=0,k=k_val)
+        if k_val != 1:
+            temp = np.linspace(0.2,20,50)
+            p_US = UnivariateSpline(temp, p_US(temp),s=0,k=1)
+        
+        output_arr = p_US(th)
+        try:
+            for i,theta in enumerate(th):
+                if theta > 20:
+                    output_arr[i] = log_g0
+        except:
+            if th > 20:
+                output_arr = log_g0
+        return 10**output_arr
+    else: 
+        print("Function is not ready for this choice") 
+        return 0
+    
+def saha_LTE(species = "H", temp = 5000,Pe = None):
+    try:
+        ion_df = pandas.read_csv("data/ioniz.csv").fillna("-")
+        nion_df = pandas.read_csv("data/nist_ioniz.csv").fillna(0)
+    except:
+        ion_df = pandas.read_csv("../data/ioniz.csv").fillna("-")
+        nion_df = pandas.read_csv("../data/nist_ioniz.csv").fillna(0)
+        
+    try:
+        temp=temp.value
+    except: pass
+    
+    species = species_name_correction(species)
+    
+    output = 0.665*temp**(5/2)
+    
+    if Pe != None:
+        try:
+            output /= Pe
+        except:
+            pass
+    s_list = list(species)
+    
+    r = 0
+    
+    for c in s_list:
+        if c == "+":
+            r+=1
+    Ur = partition(species=species,temp=temp)
+    
+    if species != "H-":
+        Ur1 = partition(species=species+"+",temp=temp)
+
+        print(nion_df.loc[nion_df["Element"]==species])
+        try:
+            chi = (nion_df.loc[nion_df["Element"]==species]["1ion"]).values[0]
+        except:
+            raise ValueError("Try another species, this one cannot be found.")
+            
+    else:
+        Ur1 = partition(species="H",temp=temp)
+        chi = 0.755
+        #print(Ur)
+    return 10**(np.log10(output) + np.log10(Ur1/Ur)+(-5040/temp*chi))
+    
+    
