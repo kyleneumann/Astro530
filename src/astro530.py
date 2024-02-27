@@ -62,8 +62,11 @@ def Planck(nu=1,T=1000):
         den.append(math.exp(e)-1)
        
     Bv = []
-    
-    unit = (num[0]/den[0]).unit
+    try:
+        unit = (num[0]/den[0]).unit
+    except:
+        print("Error causing value:",num/den)
+        raise ValueError("Unknown Error")
     
     for i in range(length):
         temp = (num[i]/den[i]).value
