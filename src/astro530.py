@@ -392,7 +392,7 @@ def saha_LTE(species = "H", temp = 5000,Pe = None):
     if species != "H-":
         Ur1 = partition(species=species+"+",temp=temp)
 
-        print(nion_df.loc[nion_df["Element"]==species])
+        #print(nion_df.loc[nion_df["Element"]==species])
         try:
             chi = (nion_df.loc[nion_df["Element"]==species]["1ion"]).values[0]
         except:
