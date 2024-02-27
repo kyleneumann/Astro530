@@ -100,6 +100,13 @@ def funct_BoxInt(xmin, xmax, n_size = 1e-2, n_den = 100, style="mp", scale = "li
     elif xmax == xmin: 
         return 0.
     
+    try:
+        x_unit = xmin.unit
+        xmin = xmin.value
+        xmax = xmax.value
+    except:
+        x_unit = 1
+    
     if n_size != 1e-2:
         n = int((xmax - xmin)/n_size)
     else:
@@ -111,10 +118,10 @@ def funct_BoxInt(xmin, xmax, n_size = 1e-2, n_den = 100, style="mp", scale = "li
         x_list = np.float_power(10,np.arange(np.log10(xmin),np.log10(xmax),n_size))
     else:
         raise ValueError("scale must equal either 'linear' or 'log'")
-    y_list = function((x_list* u.dimensionless_unscaled).value,**kwargs)
+    y_list = function((x_list*u.dimensionless_unscaled).value,**kwargs)
 #     y_list = function(**kwargs)
     
-    return BoxInt(x_list,y_list,style)
+    return BoxInt(x_list,y_list,style)*x_unit
 
 def BoxInt_unitless(x_list,y_list,style = "left"):
     """Box Integrator

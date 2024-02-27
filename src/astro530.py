@@ -35,6 +35,12 @@ def Planck(nu=1,T=1000):
         raise TypeError("T must be a single value, not list-like")
     except:
         pass
+    
+    try:
+        nu=(nu.to(u.um**-1)).value
+        T=(T.to(u.K)).value
+    except: pass
+    
     nu = nu/u.um
     T = T*u.K
     
