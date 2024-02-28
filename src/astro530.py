@@ -295,11 +295,12 @@ def partition(species="H",temp=5000,s_val = 0,k_val = 2,func = None, **kwargs):
     Outputs:
     
     Partition function value of a species given a temperature"""
-    
-    try:
-        rpf_df = pandas.read_csv("data/RepairedPartitionFunctions.csv")
+    try: rpf_df
     except:
-        rpf_df = pandas.read_csv("../data/RepairedPartitionFunctions.csv")
+        try:
+            rpf_df = pandas.read_csv("data/RepairedPartitionFunctions.csv")
+        except:
+            rpf_df = pandas.read_csv("../data/RepairedPartitionFunctions.csv")
         
     species = species_name_correction(species)
     
@@ -318,7 +319,7 @@ def partition(species="H",temp=5000,s_val = 0,k_val = 2,func = None, **kwargs):
         species = "He"
         data = rpf_df.loc[rpf_df["Theta="]==species].to_numpy()[0][1:-1]
     
-    log_g0 = float(rpf_df.loc[rpf_df["Theta="]==species].log_g0.values[0])
+    log_g0 = rpf_df.loc[rpf_df["Theta="]==species].log_g0.values[0]
     
     th = 5040/temp
     
@@ -362,13 +363,30 @@ def partition(species="H",temp=5000,s_val = 0,k_val = 2,func = None, **kwargs):
         print("Function is not ready for this choice") 
         return 0
     
-def saha_LTE(species = "H", temp = 5000,Pe = None):
+def init_saha():
+    global ion_df,nion_df,rpf_df
     try:
         ion_df = pandas.read_csv("data/ioniz.csv").fillna("-")
         nion_df = pandas.read_csv("data/nist_ioniz.csv").fillna(0)
+        rpf_df = pandas.read_csv("data/RepairedPartitionFunctions.csv")
     except:
         ion_df = pandas.read_csv("../data/ioniz.csv").fillna("-")
         nion_df = pandas.read_csv("../data/nist_ioniz.csv").fillna(0)
+        rpf_df = pandas.read_csv("../data/RepairedPartitionFunctions.csv")
+            
+    
+def saha_LTE(species = "H", temp = 5000,Pe = None):
+    try: 
+        #print("it works")
+        ion_df
+    except:
+        try:
+            ion_df = pandas.read_csv("data/ioniz.csv").fillna("-")
+            nion_df = pandas.read_csv("data/nist_ioniz.csv").fillna(0)
+        except:
+            ion_df = pandas.read_csv("../data/ioniz.csv").fillna("-")
+            nion_df = pandas.read_csv("../data/nist_ioniz.csv").fillna(0)
+    else: pass
         
     try:
         temp=temp.value
