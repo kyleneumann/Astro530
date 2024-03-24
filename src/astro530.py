@@ -396,11 +396,19 @@ def saha_LTE(species = "H", temp = 5000,Pe = None):
     
     output = 0.665*temp**(5/2)
     
-    if Pe != None:
-        try:
-            output /= Pe
-        except:
-            pass
+    try:
+        Pe = (Pe.cgs).value
+    except:
+        pass
+    
+    try:
+        if Pe != None:
+            try:
+                output /= Pe
+            except:
+                pass
+    except:
+        output /= np.array(Pe)
     s_list = list(species)
     
     r = 0
@@ -423,6 +431,319 @@ def saha_LTE(species = "H", temp = 5000,Pe = None):
         Ur1 = partition(species="H",temp=temp)
         chi = 0.755
         #print(Ur)
-    return 10**(np.log10(output) + np.log10(Ur1/Ur)+(-5040/temp*chi))
+    #return 10**(np.log10(output) + np.log10(Ur1/Ur)+(-5040/temp*chi))
+    return output*Ur1/Ur*10**(-5040/temp*chi)
+
+def calc_Pe(species="H",T=4310*u.K,Pg=10**2.87*u.dyne/u.cm**2,Pe = None, Phi = None):
+    try: ab_df
+    except:
+        try:
+            ab_df = pandas.read_csv("data/SolarAbundance.csv").fillna("-")
+        except:
+            ab_df = pandas.read_csv("../data/SolarAbundance.csv").fillna("-")
     
+    try:
+        temp = species[:]
+        temp[0] = "t"
+    except:
+        species = [species]
+    
+        
+    # Units
+    try:
+        Pg = (Pg.to(u.dyne/u.cm**2)).value
+        T = (T.to(u.K)).value
+        if Pe != None: 
+            Pe = (Pe.to(u.dyne/u.cm**2)).value
+            
+    except: pass
+        
+    A_list = []
+    for element in species:
+        try:
+            A = 10**float((ab_df.loc[ab_df.element == element].logA).values[0])
+        except:
+            A = 0
+        if element == "He":
+            A_He = A
+        A_list.append(A)
+    A_arr = np.array(A_list)
+    
+    init_saha()
+    
+    try:
+        if Pe == None:
+            Pe = np.sqrt(saha_LTE(species="H",temp=T*u.K)*Pg)
+#         Pe = Pg/(1+A_He)/A_He
+#         for A in A_arr:
+#             Pe *= A
+    except: pass
+    
+    
+    num = 0
+    den = 0
+    for i, element in enumerate(species):
+        #print(element)
+        try:
+            phi = (Phi.loc[Phi.species==element].Phi).values[0]
+        except:
+            phi = saha_LTE(species=element,temp=T*u.K)
+        num += A_arr[i]*(phi/Pe)/(1+phi/Pe)
+        
+        den += A_arr[i]*(1+(phi/Pe)/(1+phi/Pe))
+    return Pg*u.dyne/u.cm**2*num/den
+
+def true_Pe(species="H",T=5000*u.K,Pg=100*u.dyne/u.cm**2,tol=1e-8,single = False):
+    dPe = 2*tol
+    
+    try: ab_df
+    except:
+        init_Abundance()
+    
+    if species == "all":
+        species = []
+        for element in ab_df.element:
+            A = (ab_df.loc[ab_df.element == element].A).values[0]
+            if A != "-" and A > tol:
+                species.append(element)
+                
+    try:
+        temp = species[:]
+        temp[0] = "t"
+    except:
+        species = [species]
+    
+    Phi = init_Phi(species=species,T=T)
+    #print(Phi)
+    
+    Pe = calc_Pe(species=species,T=T,Pg = Pg, Phi = Phi)
+
+    Pe_list = [Pe.value]
+
+    while dPe > tol:
+        Pe_new = calc_Pe(species=species,T=T,Pg=Pg,Pe=Pe.value, Phi = Phi)
+        dPe = abs(Pe-Pe_new)/Pe_new
+        Pe = Pe_new
+        Pe_list.append(Pe.value)
+    if single:
+        return Pe
+    else:
+        return np.array(Pe_list)*Pe.unit
+    
+def init_Abundance():
+    global ab_df
+    try:
+        ab_df = pandas.read_csv("data/SolarAbundance.csv").fillna("-")
+    except:
+        ab_df = pandas.read_csv("../data/SolarAbundance.csv").fillna("-")
+def find_Abundance(species = "H"):
+    try: ab_df
+    except: init_Abundance()
+        
+    try:
+        A = (ab_df.loc[ab_df.element == species]["A"].to_numpy())[0]
+        return A
+    except:
+        raise ValueError("Try different element")
+        
+def init_Phi(species=["H"],T=5000*u.K):
+    data = [["species","Phi"]]
+    for element in species:
+        data.append([element,saha_LTE(species=element,temp=T)])
+    #print(data[0])
+    df = pandas.DataFrame(data=data[1:],
+                    columns=data[0])
+    return df
+    
+    
+def stim_em_coeff(wavelength=5000,T=5000):
+    if (wavelength*u.s).unit == u.s:
+        pass
+    else:
+        wavelength = (wavelength.to(u.angstrom)).value
+        T = (T.to(u.K)).value
+        #Pe = (Pe.to(u.dyne*u.cm**-2)).value
+        
+    chi = 1.2398e4/wavelength
+    theta = 5040/T
+    
+    return (1-10**(-chi*theta)) 
+
+def k_Hbf(T = 5000,wavelength = 1000,nmax = 100,stim_em_bool = False):    
+    
+    a0 = 1.0443e-26
+    
+    R=1.09678e-3
+    
+    if (wavelength*u.s).unit == u.s:
+        pass
+    else:
+        wavelength = (wavelength.to(u.angstrom)).value
+        T = (T.to(u.K)).value
+    K=0
+    for n in range(1,nmax+1):
+        #print(n)
+        lmax = n**2/R
+        
+        chi = 13.6*(1-1/n**2)
+        gbf = 1.-0.3456/(wavelength*R)**(1/3) * (wavelength*R/n**2 - 1/2)
+        
+        try:
+            for i,l in enumerate(wavelength):
+                if l > lmax: gbf[i] = 0
+        except:
+            if lmax < wavelength: gbf = 0
+        
+        K+= (wavelength/n)**3*gbf*10**(-5040/T * chi)
+    
+    K *= a0
+    
+    if stim_em_bool:
+        stim_coeff = stim_em_coeff(wavelength=wavelength,T=T)
+    else:
+        stim_coeff = 1
+    
+    return K*stim_coeff*u.cm**2
+
+def k_Hff(T = 5000,wavelength = 1000,stim_em_bool=False):
+    a0 = 1.0443e-26
+    
+    R=1.09678e-3
+    
+    if (wavelength*u.s).unit == u.s:
+        pass
+    else:
+        wavelength = (wavelength.to(u.angstrom)).value
+        T = (T.to(u.K)).value
+        
+    theta = 5040/T
+    loge = 0.43429    
+    I = ((const.h*const.c*const.Ryd).to(u.eV)).value    
+    chi = 1.2398e4 / wavelength    
+    gff = 1+ 0.3456/(wavelength*R)**(1/3) * (loge/(theta*chi)+1/2)
+    
+    K = a0*wavelength**3*gff*loge/(2*theta*I)*10**(-theta*I)
+    
+    if stim_em_bool:
+        stim_coeff = stim_em_coeff(wavelength=wavelength,T=T)
+    else:
+        stim_coeff = 1
+    
+    return K*stim_coeff*u.cm**2
+
+def k_Hnbf(Pe,T = 5000,wavelength = 1000, stim_em_bool=False):
+    if (wavelength*u.s).unit == u.s:
+        pass
+    else:
+        wavelength = (wavelength.to(u.angstrom)).value
+        T = (T.to(u.K)).value
+        (Pe.to(u.dyne*u.cm**-2)).value
+    
+    a0 = 0.1199654
+    a1 = -1.18267e-6
+    a2 = 2.64243e-7
+    a3 = -4.40524e-11
+    a4 = 3.23992e-15
+    a5 = -1.39568e-19
+    a6 = 2.78701e-24
+    
+    abf = (a0+a1*wavelength+a2*wavelength**2+a3*wavelength**3+a4*wavelength**4+
+           a5*wavelength**5+a6*wavelength**6)*10**-17
+    
+    theta = 5040/T
+    
+    try:
+        zeroed = False
+        for i,a in enumerate(abf):
+            if a <= 0 or zeroed:
+                abf[i] = 0
+                zeroed = True
+    except:
+        if abf <= 0 or zeroed:
+            abf = 0
+            zeroed = True
+    
+    K = 4.158e-10*abf*Pe*theta**(5/2) * 10**(0.754*theta)
+    
+    if stim_em_bool:
+        stim_coeff = stim_em_coeff(wavelength=wavelength,T=T)
+    else:
+        stim_coeff = 1
+    
+    return K*stim_coeff*u.cm**2
+
+def k_Hnff(Pe,T = 5000,wavelength = 9000):
+    if (wavelength*u.s).unit == u.s:
+        pass
+    else:
+        wavelength = (wavelength.to(u.angstrom)).value
+        T = (T.to(u.K)).value
+        Pe = (Pe.to(u.dyne*u.cm**-2)).value
+    
+        
+    logl = np.log10(wavelength)
+    logth = np.log10(5040/T)
+        
+    f0 = -2.2763 - 1.6850*logl + 0.76661*logl**2-0.053346*logl**3
+    f1 = 15.2827-9.2846*logl+1.99381*logl**2-0.142631*logl**3
+    f2 = -197.789+190.266*logl-67.9775*logl**2+10.6913*logl**3-0.625151*logl**4
+    
+    K = 1e-26*Pe*10**(f0+f1*logth+f2*logth**2)
+    
+    return K*u.cm**2
+
+def k_e(Pe = 10*u.dyne/u.cm**2,Pg = 20*u.dyne/u.cm**2,species = "H"):
+    try:
+        if Pe > Pg: raise ValueError("Electron pressure must be less than gas pressure")
+    except:pass
+    if (Pe*u.s).unit == u.s:
+        if (Pg*u.s).unit != u.s:
+            Pg = (Pg.to(u.dyne*u.cm**-2)).value
+    else:
+        Pe = (Pe.to(u.dyne*u.cm**-2)).value
+        Pg = (Pg.to(u.dyne*u.cm**-2)).value
+    
+    #species = np.array(species)
+    sumAj = 0
+    try:
+        for element in species:
+            sumAj += find_Abundance(species = element)
+    except:
+        sumAj = find_Abundance(species = species)
+    alpha = 0.6648*10**-24*u.cm**2
+    return alpha*Pe/(Pg-Pe)*sumAj
+
+def k_total(Pe=10*u.dyne/u.cm**2,T = 5000*u.K,wavelength = 9000*u.angstrom,Pg=None,species="H",norm_bool = False,**kwargs):
+    if (wavelength*u.s).unit == u.s:
+        pass
+    else:
+        wavelength = (wavelength.to(u.angstrom)).value
+        T = (T.to(u.K)).value
+        Pe = (Pe.to(u.dyne*u.cm**-2)).value
+        
+    KHbf = k_Hbf(T=T,wavelength=wavelength)
+    KHff = k_Hff(T=T,wavelength=wavelength)
+    KHnbf = k_Hnbf(Pe,T=T,wavelength=wavelength)
+    KHnff = k_Hnff(Pe,T=T,wavelength=wavelength)
+    
+    chi = 1.2398e4/wavelength
+    theta = 5040/T
+    
+    phi = saha_LTE("H",temp=T)
+    
+    if norm_bool:
+        norm = 1/(1+phi/Pe)
+    else:
+        norm = 1
+    
+    Kt = ((KHbf+KHff+KHnbf)*(1-10**(-chi*theta))+KHnff)*norm
+    
+    try:
+        if Pg != None:
+            Ke = k_e(Pe=Pe,Pg=Pg,species=species)
+        else: 
+            Ke = 0
+    except:
+        Ke = k_e(Pe=Pe,Pg=Pg,species=species)
+    return Kt+Ke
     
