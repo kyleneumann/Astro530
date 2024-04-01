@@ -530,6 +530,110 @@ def true_Pe(species="H",T=5000*u.K,Pg=100*u.dyne/u.cm**2,tol=1e-8,single = False
     else:
         return np.array(Pe_list)*Pe.unit
     
+def Pe_calc(species=None,T=5000*u.K,Pg=100*u.dyne/u.cm**2,tol=1e-8,single = True):
+    """
+    Best Version of calculating Pe
+    """
+    dPe = 2*tol
+    
+    try: ab_df
+    except:
+        init_Abundance()
+    
+    A_list = []
+    single_element = False
+    single_param = False
+    
+    try:
+        if species == None:
+            species = []
+            for element in ab_df.element:
+                A = (ab_df.loc[ab_df.element == element].A).values[0]
+                if A != "-":# and A > tol:
+                    species.append(element)
+                    A_list.append(A)
+    except:
+        try:
+            temp = species
+            temp[0] = "K"
+            for element in species:
+                A = (ab_df.loc[ab_df.element == element].A).values[0]
+                if A != "-":
+                    A_list.append(A) 
+                else:
+                    A_list.append(0)
+        except:
+            element = species
+            species = [species]
+            A = (ab_df.loc[ab_df.element == element].A).values[0]
+            if A != "-":
+                A_list.append(A)
+            else:
+                A_list.append(0)
+                
+    try:
+        Pg = Pg.to(u.dyne/u.cm**2)
+        T = T.to(u.K)          
+    except:
+        Pg = Pg*u.dyne/u.cm**2
+        T = T*u.K
+                
+    try: 
+        Pg[0]
+    except:
+        single_param = True
+        
+    A_arr = np.array(A_list)
+    
+    Phi = init_Phi(species=species,T=T,dtype="array")
+    #return Phi
+    #A_arr = np.resize(A_arr,np.shape(Phi))
+    #print(Phi)
+    
+    Pe = Pg.value*1/(1+A_arr[1])*np.sum(A_arr[2:])#calc_Pe(species=species,T=T,Pg = Pg, Phi = Phi)
+
+    Pe_list = [Pe]
+    
+    
+    if single_param:
+        while dPe > tol:
+            num = np.sum((A_arr*Phi/Pe)/(1+Phi/Pe))
+            den = np.sum((A_arr*(1+(Phi/Pe)/(1+Phi/Pe))))
+
+            Pe_new = Pg.value*num/den
+            dPe = abs(Pe-Pe_new)/Pe_new
+            Pe = Pe_new#.value
+            Pe_list.append(Pe)
+        if single:
+            return Pe*Pg.unit
+        else:
+            return np.array(Pe_list)*Pg.unit
+    else:
+        n_param = len(Pg)
+        Pe_list = Pe_list[0]
+        Pe_list3 = []
+        
+        for i in range(n_param):
+            Pe = Pe_list[i]
+            Pe_list2 = []
+            dPe = 2*tol
+            
+            while dPe > tol:
+                num = np.sum((A_arr*Phi[:,i]/Pe)/(1+Phi[:,i]/Pe))
+                den = np.sum((A_arr*(1+(Phi[:,i]/Pe)/(1+Phi[:,i]/Pe))))
+
+                Pe_new = Pg[i].value*num/den
+                dPe = abs(Pe-Pe_new)/Pe_new
+                
+                Pe = Pe_new#.value
+                Pe_list2.append(Pe)
+            if single:
+                Pe_list3.append(Pe)
+            else:
+                Pe_list3.append(Pe_list2)
+                
+        return np.array(Pe_list3)*Pg.unit
+    
 def init_Abundance():
     global ab_df
     try:
@@ -546,14 +650,22 @@ def find_Abundance(species = "H"):
     except:
         raise ValueError("Try different element")
         
-def init_Phi(species=["H"],T=5000*u.K):
-    data = [["species","Phi"]]
-    for element in species:
-        data.append([element,saha_LTE(species=element,temp=T)])
-    #print(data[0])
-    df = pandas.DataFrame(data=data[1:],
-                    columns=data[0])
-    return df
+def init_Phi(species=["H"],T=5000*u.K,dtype = "df"):
+    if dtype != "array" or dtype != "df":
+        dtype = "array"
+    if dtype == "df":
+        data = [["species","Phi"]]
+        for element in species:
+            data.append([element,saha_LTE(species=element,temp=T)])
+        #print(data[0])
+        df = pandas.DataFrame(data=data[1:],
+                        columns=data[0])
+        return df
+    elif dtype == "array":
+        data = []
+        for element in species:
+            data.append(saha_LTE(species=element,temp=T))
+        return np.array(data)
     
     
 def stim_em_coeff(wavelength=5000,T=5000):
