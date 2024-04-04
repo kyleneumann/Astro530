@@ -781,8 +781,10 @@ def k_Hnbf(Pe,T = 5000,wavelength = 1000, stim_em_bool=False):
         stim_coeff = stim_em_coeff(wavelength=wavelength,T=T)
     else:
         stim_coeff = 1
-    
-    return K*stim_coeff*u.cm**2
+    try:
+        return K.value*stim_coeff*u.cm**2
+    except:
+        return K*stim_coeff*u.cm**2
 
 def k_Hnff(Pe,T = 5000,wavelength = 9000):
     if (wavelength*u.s).unit == u.s:
@@ -805,6 +807,17 @@ def k_Hnff(Pe,T = 5000,wavelength = 9000):
     return K*u.cm**2
 
 def k_e(Pe = 10*u.dyne/u.cm**2,Pg = 20*u.dyne/u.cm**2,species = "H"):
+    
+    if species == "all":
+        try: ab_df
+        except:
+            init_Abundance()
+        species = []
+        for element in ab_df.element:
+            A = (ab_df.loc[ab_df.element == element].A).values[0]
+            if A != "-":
+                species.append(element)
+    #print(species)
     try:
         if Pe > Pg: raise ValueError("Electron pressure must be less than gas pressure")
     except:pass
@@ -843,6 +856,16 @@ def k_total(Pe=10*u.dyne/u.cm**2,T = 5000*u.K,wavelength = 9000*u.angstrom,Pg=No
     
     phi = saha_LTE("H",temp=T)
     
+    try:
+        if Pg != None:
+            Ke = k_e(Pe=Pe,Pg=Pg,species=species)
+        else: 
+            Ke = 0*KHbf.unit
+            norm_bool = True
+    except:
+        Ke = k_e(Pe=Pe,Pg=Pg,species=species)
+        norm_bool = True
+    
     if norm_bool:
         norm = 1/(1+phi/Pe)
     else:
@@ -850,12 +873,93 @@ def k_total(Pe=10*u.dyne/u.cm**2,T = 5000*u.K,wavelength = 9000*u.angstrom,Pg=No
     
     Kt = ((KHbf+KHff+KHnbf)*(1-10**(-chi*theta))+KHnff)*norm
     
-    try:
-        if Pg != None:
-            Ke = k_e(Pe=Pe,Pg=Pg,species=species)
-        else: 
-            Ke = 0
-    except:
-        Ke = k_e(Pe=Pe,Pg=Pg,species=species)
     return Kt+Ke
+
+def opacity_500(tau=0.9,print_bool = False):
+    try: val_df
+    except:
+        init_VAL()
+    t500 = val_df.tau_500.to_numpy()
+    T_arr = val_df["T"].to_numpy()
+    Pg_arr = val_df.Ptotal.to_numpy()*val_df["Pgas/Ptotal"].to_numpy()
+    
+    T = UnivariateSpline(t500,T_arr,s=0,k=2)(tau)*u.K
+    Pg = UnivariateSpline(t500,Pg_arr,s=0,k=2)(tau)*u.Ba
+    
+    Pe = Pe_calc(T=T,Pg=Pg,single=True)
+    if print_bool:
+        print("T:",T)
+        print("Pg:",Pg)
+        print("Pe:",Pe)
+    
+    return k_alt(wavelength=5000*u.Angstrom,T=T,Pg=Pg,Pe=Pe)
+
+def k_cont(wavelength=5000*u.Angstrom,T=5000*u.K,Pe=50*u.dyn/u.cm**2,Pg=2e5*u.dyn/u.cm**2,print_bool = False,**kwargs):
+
+    sAjmu = abundance_mass()
+    species = []
+    for element in ab_df.element:
+        A = (ab_df.loc[ab_df.element == element].A).values[0]
+        if A != "-":
+            species.append(element)
+   
+    K_tot = k_total(Pe=Pe,T=T,wavelength=wavelength,Pg=Pg,species=species,**kwargs)
+    
+    if print_bool:
+        print("T =",T)
+        print("P_e =",Pe)
+        print("P_g =",Pg)
+        print("Wavelength =",wavelength)
+        print("Mean particle mass =",sAjmu)
+        print("Opacity =",K_tot/sAjmu)
+        
+    
+    return K_tot/sAjmu
+
+def abundance_mass():
+    sAjmu = 0
+    try:
+        ab_df
+    except:
+        init_Abundance()
+    
+    amu = (const.N_A)**-1*1*u.g/u.mol        
+    
+    species = []
+    for element in ab_df.element:
+        A = (ab_df.loc[ab_df.element == element].A).values[0]
+        if A != "-":
+            species.append(element)
+    
+    for ele in species:
+        df_e = ab_df.loc[ab_df["element"]==ele]
+        A = df_e.A.to_numpy()[0]
+        mu = df_e.weight.to_numpy()[0]
+        sAjmu += A*mu
+        
+    return sAjmu * amu
+    
+def init_VAL():
+    global val_df
+    try:
+        openfile = open("data/VALIIIC_sci_e.txt","r")
+    except:
+        openfile = open("../data/VALIIIC_sci_e.txt","r")
+    openlines = openfile.readlines()
+    openfile.close()
+
+    table = []
+    for i,line in enumerate(openlines):
+        data = line.split()
+        if len(data) == 0: continue
+        if data[0] == "#":
+            if i == 0:
+                header = data[1:]
+            print(line)
+            continue
+        table.append(data)
+
+    table = np.array(table,dtype=float)
+
+    val_df = pd.DataFrame(table,columns = header)
     
