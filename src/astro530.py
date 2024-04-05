@@ -3,12 +3,16 @@ from astropy import constants as const
 import numpy as np
 import math
 import pandas
+pd = pandas
 
 from scipy.special import expn
 from scipy.interpolate import UnivariateSpline
 
 from src import N_integrator
 simpson_wrapper = N_integrator.simpson_wrapper
+
+from scipy.special import wofz
+m_Na = 22.9897*u.g/u.mol/const.N_A
 
 def Planck(nu=1,T=1000):
     """Planck Function
@@ -876,6 +880,9 @@ def k_total(Pe=10*u.dyne/u.cm**2,T = 5000*u.K,wavelength = 9000*u.angstrom,Pg=No
     return Kt+Ke
 
 def opacity_500(tau=0.9,print_bool = False):
+    """
+        Uses t500 to calculate opacity
+    """
     try: val_df
     except:
         init_VAL()
@@ -892,8 +899,9 @@ def opacity_500(tau=0.9,print_bool = False):
         print("Pg:",Pg)
         print("Pe:",Pe)
     
-    return k_alt(wavelength=5000*u.Angstrom,T=T,Pg=Pg,Pe=Pe)
-
+    return k_alt(wavelength=5000*u.Angstrom,T=T,Pg=Pg,Pe=Pe)    
+    
+    
 def k_cont(wavelength=5000*u.Angstrom,T=5000*u.K,Pe=50*u.dyn/u.cm**2,Pg=2e5*u.dyn/u.cm**2,print_bool = False,**kwargs):
 
     sAjmu = abundance_mass()
@@ -962,4 +970,154 @@ def init_VAL():
     table = np.array(table,dtype=float)
 
     val_df = pd.DataFrame(table,columns = header)
+    
+    return val_df
+    
+
+def Voigt(a,u):
+    return np.real(wofz(u+1j*a))
+def Voigt_wrapper_Na(nu, T=5000*u.K, Pg=300*u.dyn/u.cm**2, uturb=0*u.km/u.s, n_e = 10**6/u.cm**3,ideal_gas = False):
+    c = const.c
+    try: 
+        nu = nu.to(u.Hz)
+        T = T.to(u.K)
+        Pg = Pg.to(u.Ba)
+        uturb = uturb.to(u.cm/u.s)
+    except: 
+        nu = nu*u.Hz
+        T = T *u.K
+        Pg = Pg*u.Ba
+        uturb = uturb*u.cm/u.s
+    nu0 = (np.array([5889.95,5895.924])*u.Angstrom).to(u.Hz,equivalencies=u.spectral())
+    
+    delta_nu = nu0/c*np.sqrt((2*const.k_B*T/m_Na)+uturb**2)
+    
+    if ideal_gas:
+        Pe = n_e*const.k_B*T
+    else:
+        Pe = Pe_calc(Pg=Pg,T=T)
+    try:
+        nu[0]
+        single_nu = False
+    except:
+        single_nu = True
+        
+    if single_nu:
+        gamma = lorentz_Na(nu, Pe=Pe,Pg=Pg,T=T)
+        #eta = (nu-nu0)*c/nu0
+        print("delta_nu =",delta_nu.cgs)
+        u0 = (nu-nu0)/delta_nu
+        a0 = gamma/(4*np.pi*delta_nu)
+        print("u =",u0.cgs)
+        print("a =",a0.cgs)
+        return Voigt(a0,u0)/(np.sqrt(np.pi)*delta_nu)
+    else: 
+        V_list = []
+        for v in nu:
+            gamma = lorentz_Na(v, Pe=Pe, Pg=Pg,T=T)
+            #eta = (v-nu0)*c/nu0
+        
+            u0 = (v-nu0)/delta_nu
+            a0 = gamma/(4*np.pi*delta_nu)
+            Vo = Voigt(a0,u0)
+            
+            V_list.append(Vo.value)
+        V_arr = np.array(V_list)*Vo.unit
+        #return V_arr.cgs
+        V0 = V_arr[:,0]/(np.sqrt(np.pi)*delta_nu[0])
+        V1 = V_arr[:,1]/(np.sqrt(np.pi)*delta_nu[1])
+        return (np.array([V0,V1]).T*V0.unit).cgs
+    
+def lorentz_Na(nu, Pe = 100*u.Ba, Pg = 300*u.Ba, T = 5000*u.K):
+    nu0 = (np.array([5889.95,5895.924])*u.Angstrom).to(u.Hz,equivalencies=u.spectral())
+    
+    # Radiation
+    yrad = 4*np.pi *np.array([6.16,6.14])*10**7*u.Hz
+    
+    # Gamma4
+    logC4 = np.array([-15.17,-15.33])
+    logy4 = 19+2/3*logC4+np.log10(Pe/(1*u.Ba))-5/6 * np.log10(T/(1*u.K))
+    
+    # Gamma6
+    I = 5.17*u.eV
+    chi_n = 0*u.eV#2.1*u.eV
+    chi_nu = const.h*nu0#nu
+#     print(I-chi_n-chi_nu)
+#     print(I-chi_n)
+    
+    logC6 = np.log10(0.3)-30+np.log10(((1/(I-chi_n-chi_nu)**2-1/(I-chi_n)**2).to(1/u.eV**2)).value)
+    #print(logC6)
+    #logy6 = 20+2/5*np.log10(C6.cgs.value)+np.log(Pg/u.Ba)-7/10*np.log10(T/u.K)
+    logy6 = 20+2/5*logC6+np.log10(Pg/u.Ba)-7/10*np.log10(T/u.K)
+    
+    y4 = 10**logy4
+    y6 = 10**logy6
+    
+#     print("logy4 =",logy4)
+#     print("logy6 =",logy6)
+    return yrad + (y4+y6)*u.Hz
+def mono_line_ext_NA(nu, T=5000*u.K, Pg=300*u.dyn/u.cm**2, uturb=0*u.km/u.s,**kwargs):
+    c = const.c
+    h = const.h
+    try: 
+        nu = nu.to(u.Hz)
+        T = T.to(u.K)
+        Pg = Pg.to(u.Ba)
+        uturb = uturb.to(u.cm/u.s)
+    except: 
+        nu = nu*u.Hz
+        T = T *u.K
+        Pg = Pg*u.Ba
+        uturb = uturb*u.cm/u.s
+    nu0 = (np.array([5889.95,5895.924])*u.Angstrom).to(u.Hz,equivalencies=u.spectral())
+    Aul = np.array([6.16,6.14])*10**7*u.Hz
+    gu = np.array([4,2])
+    gl = np.array([2,2])
+    Bul = Aul*c**2/(2*h*nu0**3)
+    Blu = gu/gl*Bul
+    delta_nu = nu0/c*np.sqrt((2*const.k_B*T/m_Na)+uturb**2)
+    #print(Blu.cgs)
+    ϕ = Voigt_wrapper_Na(nu, T=T, Pg=Pg, uturb=uturb,**kwargs)
+#     print(ϕ)
+#     print(ϕ*np.sqrt(np.pi)*delta_nu)
+    #print(np.sqrt(np.pi)*delta_nu*ϕ)
+    print("Δλ_D:", (c*delta_nu/(nu0)**2).to(u.AA))
+    try:
+        sig_0 = h*nu/(4*np.pi)*Blu[0]*ϕ[:,0]
+        sig_1 = h*nu/(4*np.pi)*Blu[1]*ϕ[:,1]
+        return 4*np.pi*(np.array([sig_0,sig_1]).T*sig_0.unit).cgs
+    except:
+        return (h*nu*Blu*ϕ).cgs
+    
+def line_opacity_Na(nu,T=5000*u.K,Pg=100*u.Ba,uturb=0*u.km/u.s,rho = 10*u.g/u.cm**3,nH = 10**6/u.cm**3,ne = 10**6/u.cm**3, t500 = None,**kwargs):
+#     try: 
+#         if t500 == None:
+#             pass
+#         else:
+#             raise ValueError("Break Me")
+#     except:
+        
+    σ = mono_line_ext_NA(nu,T=T,Pg=Pg,uturb=uturb,ne = ne,**kwargs)
+    A = find_Abundance("Na")
+    Pe = ideal_gas(ne,T) #Pe_calc(T=T,Pg=Pg)
+    fe = 2/partition(species="Na",temp=T.value)
+    fi = 1/(1+saha_LTE(species="Na",temp=T,Pe = Pe))
+    spectral_emission = (1-np.exp(-const.h*(np.array([5890,5896])*u.Angstrom).to(u.Hz,equivalencies=u.spectral())/(const.k_B*T)))
+    
+    print("fe =",fe)
+    print("fi =",fi)
+    print("SEF =", spectral_emission)
+    
+    try:
+        kappa_list = []
+        for s in σ:
+            kappa_list.append(s*A*nH/rho*fi*fe*spectral_emission)
+        return np.array(kappa_list)*kappa_list[0].unit
+        
+    except:
+        return σ*A*nH/rho*fi*fe*spectral_emission
+
+def ideal_gas(n,T):
+    return n*const.k_B*T
+    
     
