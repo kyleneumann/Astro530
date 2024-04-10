@@ -963,7 +963,7 @@ def init_VAL():
         if data[0] == "#":
             if i == 0:
                 header = data[1:]
-            print(line)
+            #print(line)
             continue
         table.append(data)
 
@@ -1005,11 +1005,12 @@ def Voigt_wrapper_Na(nu, T=5000*u.K, Pg=300*u.dyn/u.cm**2, uturb=0*u.km/u.s, n_e
     if single_nu:
         gamma = lorentz_Na(nu, Pe=Pe,Pg=Pg,T=T)
         #eta = (nu-nu0)*c/nu0
-        print("delta_nu =",delta_nu.cgs)
+        
         u0 = (nu-nu0)/delta_nu
         a0 = gamma/(4*np.pi*delta_nu)
-        print("u =",u0.cgs)
-        print("a =",a0.cgs)
+#         print("delta_nu =",delta_nu.cgs)
+#         print("u =",u0.cgs)
+#         print("a =",a0.cgs)
         return Voigt(a0,u0)/(np.sqrt(np.pi)*delta_nu)
     else: 
         V_list = []
@@ -1056,7 +1057,7 @@ def lorentz_Na(nu, Pe = 100*u.Ba, Pg = 300*u.Ba, T = 5000*u.K):
 #     print("logy4 =",logy4)
 #     print("logy6 =",logy6)
     return yrad + (y4+y6)*u.Hz
-def mono_line_ext_NA(nu, T=5000*u.K, Pg=300*u.dyn/u.cm**2, uturb=0*u.km/u.s,**kwargs):
+def mono_line_ext_NA(nu, T=5000*u.K, Pg=300*u.dyn/u.cm**2, uturb=0*u.km/u.s,n_e = 10/u.cm**3,print_bool=False,**kwargs):
     c = const.c
     h = const.h
     try: 
@@ -1077,11 +1078,12 @@ def mono_line_ext_NA(nu, T=5000*u.K, Pg=300*u.dyn/u.cm**2, uturb=0*u.km/u.s,**kw
     Blu = gu/gl*Bul
     delta_nu = nu0/c*np.sqrt((2*const.k_B*T/m_Na)+uturb**2)
     #print(Blu.cgs)
-    ϕ = Voigt_wrapper_Na(nu, T=T, Pg=Pg, uturb=uturb,**kwargs)
+    ϕ = Voigt_wrapper_Na(nu, T=T, Pg=Pg, uturb=uturb,n_e=n_e,**kwargs)
 #     print(ϕ)
 #     print(ϕ*np.sqrt(np.pi)*delta_nu)
     #print(np.sqrt(np.pi)*delta_nu*ϕ)
-    print("Δλ_D:", (c*delta_nu/(nu0)**2).to(u.AA))
+    if print_bool:
+        print("Δλ_D:", (c*delta_nu/(nu0)**2).to(u.AA))
     try:
         sig_0 = h*nu/(4*np.pi)*Blu[0]*ϕ[:,0]
         sig_1 = h*nu/(4*np.pi)*Blu[1]*ϕ[:,1]
@@ -1089,33 +1091,32 @@ def mono_line_ext_NA(nu, T=5000*u.K, Pg=300*u.dyn/u.cm**2, uturb=0*u.km/u.s,**kw
     except:
         return (h*nu*Blu*ϕ).cgs
     
-def line_opacity_Na(nu,T=5000*u.K,Pg=100*u.Ba,uturb=0*u.km/u.s,rho = 10*u.g/u.cm**3,nH = 10**6/u.cm**3,ne = 10**6/u.cm**3, t500 = None,**kwargs):
-#     try: 
-#         if t500 == None:
-#             pass
-#         else:
-#             raise ValueError("Break Me")
-#     except:
+def line_opacity_Na(nu,T=5000*u.K,Pg=100*u.Ba,uturb=0*u.km/u.s,rho = 10*u.g/u.cm**3,nH = 10**6/u.cm**3,ne = 10**6/u.cm**3,print_bool=False,**kwargs):
         
-    σ = mono_line_ext_NA(nu,T=T,Pg=Pg,uturb=uturb,ne = ne,**kwargs)
+    σ = mono_line_ext_NA(nu,T=T,Pg=Pg,uturb=uturb,n_e=ne,print_bool=print_bool,**kwargs)
     A = find_Abundance("Na")
     Pe = ideal_gas(ne,T) #Pe_calc(T=T,Pg=Pg)
     fe = 2/partition(species="Na",temp=T.value)
     fi = 1/(1+saha_LTE(species="Na",temp=T,Pe = Pe))
     spectral_emission = (1-np.exp(-const.h*(np.array([5890,5896])*u.Angstrom).to(u.Hz,equivalencies=u.spectral())/(const.k_B*T)))
-    
-    print("fe =",fe)
-    print("fi =",fi)
-    print("SEF =", spectral_emission)
+    if print_bool:
+        print("A =",A)
+        print("Pe =",Pe)
+        print("fe =",fe)
+        print("fi =",fi)
+        print("SEF =", spectral_emission)
+        print("σ =", σ)
     
     try:
+        #print("work")
+        return σ*A*nH/rho*fi*fe*spectral_emission
+
+    except:
+        print("Something broke, value may be off.")
         kappa_list = []
         for s in σ:
             kappa_list.append(s*A*nH/rho*fi*fe*spectral_emission)
         return np.array(kappa_list)*kappa_list[0].unit
-        
-    except:
-        return σ*A*nH/rho*fi*fe*spectral_emission
 
 def ideal_gas(n,T):
     return n*const.k_B*T
