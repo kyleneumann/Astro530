@@ -102,7 +102,7 @@ def Planck_Int(Temp):
     
     return analytic_sol
 
-def Planck_tau(t, nu=[10], Teff = 5000*u.K):
+def Planck_tau(t, nu=[10], Teff = 5000*u.K,**kwargs):
     """Planck Function in terms of tau
     Default units are um^-1 for wavenumber and K for effective temperature.
     
@@ -219,6 +219,7 @@ def eddington_flux(t_arr, tmin = 0, tmax = 1e2, n_size = 1e-5, src_func = source
     H_ν(0) [float]: Outputs the value for the eddington flux at a τ_ν = 0.
     """
     t_arr = np.array([t_arr])
+    print(t_arr)
     src0 = src_func(t_arr[0], **kwargs)
     src_shape = np.shape(src0)
     
@@ -239,6 +240,7 @@ def eddington_flux(t_arr, tmin = 0, tmax = 1e2, n_size = 1e-5, src_func = source
     for i in range(len_t):
         
         tv = t_arr[i]
+        print(tv)
         
         if tv < 0: raise ValueError("Optical depth cannot be negative. Fix index = "+str(i))
         
